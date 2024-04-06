@@ -2,10 +2,16 @@ import { View, Text, Pressable, Image, StyleSheet } from "react-native";
 import React from "react";
 import FontSize from "../../constants/FontSize";
 import Colors from "../../constants/Colors";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ConversationCard() {
+  const navigation = useNavigation();
+
+  const handleNavigation = () => {
+    navigation.navigate('Chat1to1');
+  };
   return (
-    <Pressable style={styles.container}>
+    <Pressable style={styles.container} onPress={handleNavigation}>
       <View style={styles.conversationContainer}>
         {/* ---------- AVARTA ---------- */}
         <View style={styles.avartaContainer}>
