@@ -2,7 +2,7 @@ export const useAcceptFriendRequest = async (user, token, requesterId) => {
   try {
     const response = await fetch(
       process.env.EXPO_PUBLIC_BASE_URL +
-        `/user/${user._id}/${requesterId}/accept`,
+        `/friends/${user._id}/${requesterId}/accept`,
       {
         method: "GET",
         headers: {

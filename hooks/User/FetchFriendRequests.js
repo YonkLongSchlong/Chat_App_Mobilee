@@ -1,7 +1,7 @@
 export const useFetchFriendRequest = async (user, token) => {
   try {
     const response = await fetch(
-      process.env.EXPO_PUBLIC_BASE_URL + `/user/${user._id}/friendrequest`,
+      process.env.EXPO_PUBLIC_BASE_URL + `/friends/${user._id}/requests`,
       {
         method: "GET",
         headers: {
