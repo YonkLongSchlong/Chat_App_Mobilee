@@ -12,6 +12,8 @@ import Contact from "../Peoples/Contact";
 import Birthday from "../Peoples/Birthday";
 import Colors from "../../constants/Colors";
 import AvatarSetting from "../Settings/Profile/AvatarSetting";
+import Chat1to1 from "../../components/Chat/Chat1to1";
+import ChatHeader from "../../components/Chat/ChatHeader";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -140,6 +142,20 @@ export default function AppStack() {
           },
         }}
       />
+      <Stack.Screen
+          name="Chat1to1"
+          component={Chat1to1}
+          options={({ navigation }) => ({
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: () => (
+              <ChatHeader 
+                onCall={() => console.log('Call pressed')} 
+                onVideoCall={() => console.log('Video call pressed')} 
+              />
+            ),
+          })}
+        />
     </Stack.Navigator>
   );
 }
