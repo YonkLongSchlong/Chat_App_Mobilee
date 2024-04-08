@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, FlatList, Image } from "react-native";
 import Colors from "../../constants/Colors";
 import ChatReceiver from "./ChatReceiver";
 import ChatSender from "./ChatSender";
@@ -85,7 +85,15 @@ export default function Chat1to1() {
         contentContainerStyle={styles.conversation}
       />
       </ScrollView>
-      
+      {/* <SafeAreaView style={{marginTop: 80}}>
+            <FlatList
+              data={data}
+              renderItem={renderItem} 
+              keyExtractor={item => item.id}
+              contentContainerStyle={styles.conversation}
+            />
+      </SafeAreaView> */}
+
       <View style={styles.messageInputContainer}>
         <TouchableOpacity onPress={handleSelectFile}>
           <Ionicons name="attach" size={24} color={Colors.primary} style={styles.optionButtonIcon} /> 

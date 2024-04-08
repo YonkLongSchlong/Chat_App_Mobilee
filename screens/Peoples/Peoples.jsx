@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 import PeopleHeaderBar from "../../components/HeaderBar/PeopleHeaderBar";
@@ -9,12 +9,31 @@ import Friend from "../../components/People/Friend";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from "../../context/AuthContext";
+import {useFetchFriends} from "../../hooks/User/useFetchFriends"
 
-const userData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+// const userData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
 export default function Peoples() {
   const [selected, setSelected] = useState("Friends");
   const [friendsSelected, setFriendsSelected] = useState("All");
+
+  const { user, token } = useContext(AuthContext);
+  const [friends, setFriends] = useState([]);
+
+  const fetchFriends = async () => {
+    const response = await useFetchFriends(user, token);
+    const data = await response.json();
+    if (response.status === 401) {
+      setFriends(null);
+    } else {
+      setFriends(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchFriends();
+  }, []);
 
   return (
     <>
@@ -96,10 +115,10 @@ export default function Peoples() {
         {/* ---------- FRIEND LIST ---------- */}
         <View style={styles.scrollView}>
           <FlashList
-            data={userData}
+            data={friends}
             estimatedItemSize={50}
             renderItem={({ item }) => {
-              return <Friend />;
+              return <Friend friend={item}/>;
             }}
           />
         </View>
