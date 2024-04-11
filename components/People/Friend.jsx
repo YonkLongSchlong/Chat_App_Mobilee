@@ -15,7 +15,7 @@ export default function Friend({friend}) {
         <View style={styles.container}>
       <View style={styles.usernameContainer}>
         <Image
-          source={require("../../assets/96YOG1ej_200x200.jpg")}
+          source={{ uri: friend.avatar }}
           style={styles.image}
         />
         <Text style={styles.usernameText}>{friend.username}</Text>

@@ -14,6 +14,7 @@ import Colors from "../../constants/Colors";
 import AvatarSetting from "../Settings/Profile/AvatarSetting";
 import Chat1to1 from "../../components/Chat/Chat1to1";
 import ChatHeader from "../../components/Chat/ChatHeader";
+import FriendRequestSent from "../Peoples/FriendRequestSent";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -109,6 +110,19 @@ export default function AppStack() {
         options={{
           headerShown: true,
           headerTitle: "Friend Request",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="FriendRequestSent"
+        component={FriendRequestSent}
+        options={{
+          headerShown: true,
+          headerTitle: "Friend Request Sent",
           headerTransparent: true,
           headerTitleStyle: {
             fontFamily: "semiBold",

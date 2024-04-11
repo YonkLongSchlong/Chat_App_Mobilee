@@ -69,11 +69,16 @@ export default function Peoples() {
           }}
         ></View>
 
-        {/* ---------- FRIENDS REQUEST, BIRTHDAY, CONTACTS ---------- */}
+        {/* ---------- FRIENDS REQUEST, FRIENDS REQUEST SENT, BIRTHDAY, CONTACTS ---------- */}
         <View style={styles.optionContainer}>
           <OptionsCard
             label="FriendRequest"
             text={"Friend requests"}
+            component={UserPlus}
+          />
+          <OptionsCard
+            label="FriendRequestSent"
+            text={"Friend requests sent"}
             component={UserPlus}
           />
           <OptionsCard label="Contact" text={"Contact"} component={Users} />
