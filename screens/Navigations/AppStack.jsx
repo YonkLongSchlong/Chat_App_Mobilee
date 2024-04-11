@@ -15,6 +15,7 @@ import AvatarSetting from "../Settings/Profile/AvatarSetting";
 import Chat1to1 from "../../components/Chat/Chat1to1";
 import ChatHeader from "../../components/Chat/ChatHeader";
 import FriendRequestSent from "../Peoples/FriendRequestSent";
+import UserFind from "../Profile/UserFind";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -170,6 +171,19 @@ export default function AppStack() {
             ),
           })}
         />
+        <Stack.Screen
+        name="UserFind"
+        component={UserFind}
+        options={{
+          headerShown: true,
+          headerTitle: "UserFind",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 }

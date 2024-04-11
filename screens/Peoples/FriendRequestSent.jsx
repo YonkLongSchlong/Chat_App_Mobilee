@@ -105,7 +105,7 @@ const FriendRequestSentCard = ({ item, user, token }) => {
             
             <Pressable onPress={()=> handleRevocation()} >
             <Text style={styles.btnRevocation}>Revocation
-          </Text>
+            </Text>
 
             </Pressable>
           
