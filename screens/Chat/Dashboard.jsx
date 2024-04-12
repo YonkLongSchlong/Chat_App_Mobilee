@@ -1,17 +1,45 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import UserHeaderBar from "../../components/HeaderBar/UserHeaderBar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
-import { FlashList } from "@shopify/flash-list";
 import ConversationCard from "../../components/Chat/ConversationCard";
 import FontSize from "../../constants/FontSize";
 import { ListFilter } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-
-const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+import useFetchConversations from "../../hooks/User/useFetchConversations";
+import { AuthContext } from "../../context/AuthContext";
+import { useListenConversations } from "../../hooks/User/useListenConversations";
+import { SocketContext } from "../../context/SocketContext";
+import { ConversationsContext } from "../../context/ConversationsContext";
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { conversations, setConversations } = useContext(ConversationsContext);
+  const { user, token } = useContext(AuthContext);
+  useListenConversations();
+
+  const getConversations = async () => {
+    setIsLoading(true);
+    const data = await useFetchConversations(user, token);
+    if (data.length > 0) {
+      setConversations(data);
+    } else {
+      setConversations(null);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    getConversations();
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* ---------- SEARCH BAR ---------- */}
@@ -36,15 +64,27 @@ export default function Dashboard() {
         }}
       ></View>
 
-      {/* ---------- CHAT SECTION ---------- */}
+      {/* ---------- CHAT SECTION ----------*/}
       <View style={styles.conversationsContainer}>
-        <FlashList
-          data={data}
-          estimatedItemSize={100}
-          renderItem={({ item }) => {
-            return <ConversationCard />;
-          }}
-        />
+        {!isLoading ? (
+          <ScrollView>
+            {conversations &&
+              conversations.map((conversation) => {
+                return (
+                  <ConversationCard
+                    key={conversation._id}
+                    convers={conversation}
+                  />
+                );
+              })}
+          </ScrollView>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator />
+          </View>
+        )}
       </View>
     </View>
   );

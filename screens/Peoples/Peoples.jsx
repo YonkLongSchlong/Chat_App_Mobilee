@@ -10,14 +10,11 @@ import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
-import {useFetchFriends} from "../../hooks/User/useFetchFriends"
-
-// const userData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+import { useFetchFriends } from "../../hooks/User/useFetchFriends";
 
 export default function Peoples() {
   const [selected, setSelected] = useState("Friends");
   const [friendsSelected, setFriendsSelected] = useState("All");
-
   const { user, token } = useContext(AuthContext);
   const [friends, setFriends] = useState([]);
 
@@ -118,7 +115,7 @@ export default function Peoples() {
             data={friends}
             estimatedItemSize={50}
             renderItem={({ item }) => {
-              return <Friend friend={item}/>;
+              return <Friend friend={item} />;
             }}
           />
         </View>

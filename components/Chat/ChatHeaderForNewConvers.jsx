@@ -13,13 +13,13 @@ import Colors from "../../constants/Colors";
 import { ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function ChatHeader({ onCall, onVideoCall, participant }) {
+export default function ChatHeaderForNewConverse({ friend }) {
   const navigation = useNavigation();
   return (
     <SafeAreaView
       style={{
         backgroundColor: "white",
-        height: 70,
+        height: 65,
         justifyContent: "center",
       }}
     >
@@ -34,16 +34,16 @@ export default function ChatHeader({ onCall, onVideoCall, participant }) {
           <View style={styles.avartaContainer}>
             <Image
               style={{ height: 45, width: 45, resizeMode: "cover" }}
-              source={{ uri: `${participant.avatar}` }}
+              source={{ uri: `${friend.avatar}` }}
             />
           </View>
-          <Text style={styles.headerText}>{participant.username}</Text>
+          <Text style={styles.headerText}>{friend.username}</Text>
         </View>
         <View style={styles.iconContainer}>
-          <Pressable onPress={onCall}>
+          <Pressable>
             <Ionicons name="call" size={22} color={Colors.primary} />
           </Pressable>
-          <Pressable onPress={onVideoCall}>
+          <Pressable>
             <Ionicons name="videocam" size={22} color={Colors.primary} />
           </Pressable>
         </View>
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     flexDirection: "row",
     alignItems: "center",
-    gap: 25,
+    gap: 15,
   },
   avartaContainer: {
     borderRadius: 100,

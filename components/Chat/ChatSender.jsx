@@ -1,31 +1,66 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
+import React from "react";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import Colors from "../../constants/Colors";
+import FontSize from "../../constants/FontSize";
 
-const ChatSender = ({ message }) => {
+const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
+  const isImage = item.messageType === "image" ? true : false;
+  const formatTime = (time) => {
+    const options = { hour: "numeric", minute: "numeric" };
+    return new Date(time).toLocaleString("en-US", options);
+  };
+
   return (
-    <View style={[styles.messageBubble, styles.senderMessage]}>
-      <Text style={styles.messageText}>{message}</Text>
-    </View>
+    <Pressable
+      style={styles.container}
+      onLongPress={() => {
+        setShowModal(true);
+        setSelectedMessage(item);
+      }}
+    >
+      <View style={styles.messageBubble}>
+        {isImage ? (
+          <>
+            <Image source={{ uri: item.message }} style={styles.image} />
+            <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.messageText}>{item.message}</Text>
+            <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
+          </>
+        )}
+      </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   messageBubble: {
-    maxWidth: '70%',
+    maxWidth: "70%",
     borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginVertical: 5,
-  },
-  senderMessage: {
-    alignSelf: 'flex-end',
+    paddingVertical: 10,
+    marginVertical: 7,
+    alignSelf: "flex-end",
     backgroundColor: "#D5F1FF",
     marginRight: 10,
   },
   messageText: {
-    fontSize: 16,
+    fontSize: FontSize.regular,
     color: Colors.black,
+  },
+  timeText: {
+    fontSize: FontSize.small,
+    color: Colors.dark_gray,
+    alignSelf: "flex-end",
+    marginTop: 5,
+  },
+  image: {
+    width: 220,
+    height: 220,
+    resizeMode: "cover",
+    borderRadius: 10,
   },
 });
 

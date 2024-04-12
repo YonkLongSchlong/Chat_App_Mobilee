@@ -1,8 +1,6 @@
 import { View, TextInput, StyleSheet } from "react-native";
 import React from "react";
-import { Search } from "lucide-react-native";
-import { QrCode } from "lucide-react-native";
-import { Plus } from "lucide-react-native";
+import { Search, QrCode, Plus } from "lucide-react-native";
 
 export default function UserHeaderBar() {
   return (

@@ -3,21 +3,26 @@ import { NavigationContainer } from "@react-navigation/native";
 import AppStack from "./AppStack";
 import AuthStack from "./AuthStack";
 import { AuthContext } from "../../context/AuthContext";
-import { ActivityIndicator, View } from "react-native";
+import { SocketProvider } from "../../context/SocketContext";
+import { ConversationsProvider } from "../../context/ConversationsContext";
+import { MessagesProvider } from "../../context/MessagesContext";
 
 export default function NavigationWrapper() {
-  const { isLoading, token } = useContext(AuthContext);
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size={"large"} />
-      </View>
-    );
-  }
+  const { token, user } = useContext(AuthContext);
 
   return (
     <NavigationContainer>
-      {token !== null ? <AppStack /> : <AuthStack />}
+      {token !== null && user !== null ? (
+        <SocketProvider>
+          <MessagesProvider>
+            <ConversationsProvider>
+              <AppStack />
+            </ConversationsProvider>
+          </MessagesProvider>
+        </SocketProvider>
+      ) : (
+        <AuthStack />
+      )}
     </NavigationContainer>
   );
 }

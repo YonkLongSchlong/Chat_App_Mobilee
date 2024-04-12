@@ -1,57 +1,116 @@
 import { View, Text, Pressable, Image, StyleSheet } from "react-native";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import FontSize from "../../constants/FontSize";
 import Colors from "../../constants/Colors";
 import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from "../../context/AuthContext";
+import useFetchConversation from "../../hooks/User/useFetchConversation";
+import { MessagesContext } from "../../context/MessagesContext";
+import { useListenNotification } from "../../hooks/ListenSocket.js/useListenNotification";
 
-export default function ConversationCard() {
+export default function ConversationCard({ convers }) {
   const navigation = useNavigation();
+  const [conversation, setConversation] = useState(convers);
+  const [isLoading, setIsLoading] = useState(true);
+  const { messages } = useContext(MessagesContext);
+  const [participant, setParticipant] = useState({});
+  const { user, token } = useContext(AuthContext);
+  const [lastMessage, setLastMessage] = useState(
+    conversation.messages[conversation.messages.length - 1]
+  );
+  const check = lastMessage?.messageType == "image" ? true : false;
 
-  const handleNavigation = () => {
-    navigation.navigate('Chat1to1');
+  useListenNotification(
+    conversation,
+    setConversation,
+    lastMessage,
+    setLastMessage
+  );
+
+  const formatTime = (time) => {
+    const options = {
+      day: "2-digit",
+      month: "short",
+      hour: "numeric",
+      minute: "numeric",
+    };
+    return new Date(time).toLocaleString("en-US", options);
   };
-  return (
-    <Pressable style={styles.container} onPress={handleNavigation}>
-      <View style={styles.conversationContainer}>
-        {/* ---------- AVARTA ---------- */}
-        <View style={styles.avartaContainer}>
-          <Image
-            style={{ height: 65, width: 65, resizeMode: "cover" }}
-            source={require("../../assets/96YOG1ej_200x200.jpg")}
-          />
-        </View>
 
-        {/* ---------- MESSAGE BOX ---------- */}
-        <View style={styles.messageContainer}>
-          {/* USERNAME */}
-          <View>
-            <Text style={styles.usernameText}>The Wock</Text>
+  const getConversation = async () => {
+    setIsLoading(true);
+    const data = await useFetchConversation(user, token, conversation._id);
+    setConversation(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    getConversation();
+  }, [messages]);
+
+  useEffect(() => {
+    conversation.participants.forEach((participant) => {
+      if (participant._id != user._id) {
+        setParticipant(participant);
+        return;
+      }
+    });
+    setLastMessage(conversation.messages[conversation.messages.length - 1]);
+  }, [conversation]);
+  console.log(lastMessage.senderId);
+  return (
+    <>
+      <Pressable
+        style={styles.container}
+        onPress={() =>
+          navigation.push("Chat1to1", {
+            participant,
+          })
+        }
+      >
+        <View style={styles.conversationContainer}>
+          {/* ---------- AVARTA ---------- */}
+          <View style={styles.avartaContainer}>
+            <Image
+              style={{ height: 65, width: 65, resizeMode: "cover" }}
+              source={{ uri: `${participant?.avatar}` }}
+            />
           </View>
 
-          {/* ---------- LASTEST MESSAGE ---------- */}
+          {/* ---------- MESSAGE BOX ---------- */}
+          <View style={styles.messageContainer}>
+            {/* USERNAME */}
+            <View>
+              <Text style={styles.usernameText}>{participant?.username}</Text>
+            </View>
+
+            {/* ---------- LASTEST MESSAGE ---------- */}
+            <View>
+              <Text style={styles.messageText} numberOfLines={1}>
+                {check ? "Image" : `${lastMessage.message}`}
+              </Text>
+            </View>
+          </View>
+
+          {/* ---------- TIME OF LAST MESSAGE ---------- */}
           <View>
-            <Text style={styles.messageText} numberOfLines={1}>
-              Hey how you doing ?
+            <Text style={styles.timeText}>
+              {formatTime(lastMessage?.createdAt)}
             </Text>
           </View>
         </View>
 
-        {/* ---------- TIME OF LAST MESSAGE ---------- */}
-        <View>
-          <Text style={styles.timeText}>3 giờ</Text>
-        </View>
-      </View>
-
-      {/* ---------- SEPARATOR ---------- */}
-      <View
-        style={{
-          paddingLeft: 105,
-          height: 1,
-          width: StyleSheet.hairlineWidth,
-          backgroundColor: "white",
-        }}
-      ></View>
-    </Pressable>
+        {/* ---------- SEPARATOR ---------- */}
+        <View
+          style={{
+            paddingLeft: 105,
+            height: 1,
+            width: StyleSheet.hairlineWidth,
+            backgroundColor: "white",
+          }}
+        ></View>
+      </Pressable>
+    </>
   );
 }
 
