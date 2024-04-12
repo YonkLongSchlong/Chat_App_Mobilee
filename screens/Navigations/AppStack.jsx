@@ -13,7 +13,10 @@ import Birthday from "../Peoples/Birthday";
 import Colors from "../../constants/Colors";
 import AvatarSetting from "../Settings/Profile/AvatarSetting";
 import Chat1to1 from "../../components/Chat/Chat1to1";
+import FriendRequestSent from "../Peoples/FriendRequestSent";
+import UserFind from "../Profile/UserFind";
 import { NewConversationChat } from "../Chat/NewConversationChat";
+
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -117,6 +120,19 @@ export default function AppStack() {
         }}
       />
       <Stack.Screen
+        name="FriendRequestSent"
+        component={FriendRequestSent}
+        options={{
+          headerShown: true,
+          headerTitle: "Friend Request Sent",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
+      <Stack.Screen
         name="Contact"
         component={Contact}
         options={{
@@ -150,6 +166,21 @@ export default function AppStack() {
           headerTransparent: true,
         })}
       />
+
+       <Stack.Screen
+        name="UserFind"
+        component={UserFind}
+        options={{
+          headerShown: true,
+          headerTitle: "UserFind",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+       />
+
       <Stack.Screen
         name="NewConversationChat"
         component={NewConversationChat}

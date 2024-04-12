@@ -1,12 +1,28 @@
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
+
+import { useFindUserByPhone } from "../../hooks/User/useFindUserByPhone";
+import { useNavigation } from "@react-navigation/native";
+import { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import { Search, QrCode, Plus } from "lucide-react-native";
 
 export default function UserHeaderBar() {
+  const navigation = useNavigation(); 
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const { user, token } = useContext(AuthContext);
+  
+
+  const handleSearch = async () => {
+    
+  };
   return (
     <View style={styles.wrapContainer}>
       <View style={styles.container}>
-        <Search size={24} color={"black"} />
+      <TouchableOpacity >
+          <Search size={24} color={"black"} />
+        </TouchableOpacity>
+        {/* <Search size={24} color={"black"}/> */}
         <TextInput style={styles.textInput} placeholder="Search" />
         <Plus size={24} color={"black"} />
         <QrCode size={24} color={"black"} />
