@@ -1,3 +1,5 @@
+import { ToastAndroid } from "react-native";
+
 export default userFetchUpdate = async (type, user, token, data) => {
   try {
     const response = await fetch(
@@ -11,8 +13,9 @@ export default userFetchUpdate = async (type, user, token, data) => {
         body: JSON.stringify(data),
       }
     );
+    if (response.status !== 200) throw new Error(response.msg);
     return response;
   } catch (error) {
-    console.log({ Error: `Fail updating ${type}`, msg: error.message });
+    ToastAndroid.show(error.message, ToastAndroid.LONG);
   }
 };

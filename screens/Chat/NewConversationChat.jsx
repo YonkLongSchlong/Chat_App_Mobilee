@@ -5,46 +5,47 @@ import {
   TextInput,
   ScrollView,
   Pressable,
+  ToastAndroid,
   SafeAreaView,
   ActivityIndicator,
   Image,
   Text,
-  ToastAndroid,
   Modal,
   Dimensions,
-  Platform,
 } from "react-native";
 import Colors from "../../constants/Colors";
-import ChatReceiver from "./ChatReceiver";
-import ChatSender from "./ChatSender";
+import ChatReceiver from "../../components/Chat/ChatReceiver";
+import ChatSender from "../../components/Chat/ChatSender";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import FontSize from "../../constants/FontSize";
-import ChatHeader from "./ChatHeader";
-import { AuthContext } from "../../context/AuthContext";
+import ChatHeaderForNewConverse from "../../components/Chat/ChatHeaderForNewConvers";
 import { MessagesContext } from "../../context/MessagesContext";
+import useFetchMessages from "../../hooks/User/useFetchMessages";
+import { AuthContext } from "../../context/AuthContext";
 import { useListenMesages } from "../../hooks/User/useListenMesages";
 import useSendMessage from "../../hooks/User/useSendMessage";
-import useFetchMessages from "../../hooks/User/useFetchMessages";
 import useSendImages from "../../hooks/User/useSendImages";
-import { X, ChevronRight } from "lucide-react-native";
-import { useListenDeleteMesages } from "../../hooks/ListenSocket.js/useListenDeleteMessage";
 import useDeleteMessage from "../../hooks/Messages/useDeleteMessage";
+import { X, ChevronRight } from "lucide-react-native";
 import { LogBox } from "react-native";
+import { useListenDeleteMesages } from "../../hooks/ListenSocket.js/useListenDeleteMessage";
+import { SocketContext } from "../../context/SocketContext";
 
-export default function Chat1to1({ route }) {
-  const { participant } = route.params;
-  const { messages, setMessages } = useContext(MessagesContext);
+export const NewConversationChat = ({ route }) => {
+  const { friend } = route.params;
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
-  const { user, token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
+  const { messages, setMessages } = useContext(MessagesContext);
   const lastMessageRef = useRef();
+  const { socket } = useContext(SocketContext);
   const handleContentSizeChange = () => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollToEnd({
@@ -52,8 +53,9 @@ export default function Chat1to1({ route }) {
       });
     }
   };
-  useListenMesages();
+  useListenMesages(messages, setMessages);
   useListenDeleteMesages();
+
   // const handleSelectFile = async () => {
   //   try {
   //     const result = await DocumentPicker.getDocumentAsync({});
@@ -70,6 +72,7 @@ export default function Chat1to1({ route }) {
     if (status) {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
         allowsMultipleSelection: true,
       });
       if (result.canceled) {
@@ -93,44 +96,33 @@ export default function Chat1to1({ route }) {
     }
     formData.append(
       "conversationName",
-      `${participant.username} + ${user.username}`
+      `${friend.username} + ${user.username}`
     );
-    const data = await useSendImages(token, participant._id, formData);
+    const data = await useSendImages(token, friend._id, formData);
     LogBox.ignoreAllLogs();
-    if (data.length == 0) {
+    if (messages.length == 0) {
       return;
+    } else {
+      setMessages((messages) => [...messages, ...data]);
+      setSelectedFile(null);
     }
-    setMessages((messages) => [...messages, ...data]);
-    setSelectedFile(null);
   };
 
   const handleSend = async () => {
     if (message.length > 0) {
       const data = await useSendMessage(
         token,
-        participant._id,
+        friend._id,
         message,
-        participant.username
+        friend.username
       );
-      setMessages([...messages, data.newMessage]);
+      setMessages((messages) => [...messages, data.newMessage]);
+      LogBox.ignoreAllLogs();
       setMessage("");
+      socket.emit("sendNotification", data.newMessage);
     } else {
       console.log("No message or file selected.");
     }
-  };
-
-  const handleDelete = async () => {
-    setIsLoading(true);
-    const newMessages = await useDeleteMessage(
-      messages,
-      user,
-      participant._id,
-      token,
-      selectedMessage._id
-    );
-    setMessages(newMessages);
-    setShowModal(false);
-    setIsLoading(false);
   };
 
   const downLoadImage = async () => {
@@ -171,29 +163,42 @@ export default function Chat1to1({ route }) {
     }
   };
 
+  const handleDelete = async () => {
+    setIsLoading(true);
+    const newMessages = await useDeleteMessage(
+      messages,
+      user,
+      friend._id,
+      token,
+      selectedMessage._id
+    );
+    setMessages(newMessages);
+    setShowModal(false);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    const getMessage = async () => {
+    const fetchMessage = async () => {
       setIsLoading(true);
-      const data = await useFetchMessages(token, participant._id);
+      const data = await useFetchMessages(token, friend._id);
       setMessages(data);
       setIsLoading(false);
     };
-    getMessage();
+
+    fetchMessage();
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "white",
-        flex: 1,
-        paddingTop: 50,
-      }}
-    >
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1, paddingTop: 50 }}>
       {/* ---------- CHAT MODAL ---------- */}
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <View style={styles.modal}>
           <View style={styles.modalBtnContainer}>
-            <ModalBtn label="Download image" deleteMessage={downLoadImage} />
+            <ModalBtn
+              label="Download image"
+              deleteMessage={downLoadImage}
+              disable={true}
+            />
             <ModalBtn
               label="Delete this message"
               deleteMessage={handleDelete}
@@ -210,11 +215,8 @@ export default function Chat1to1({ route }) {
           </Pressable>
         </View>
       </Modal>
+      <ChatHeaderForNewConverse friend={friend} />
 
-      {/* ---------- CHAT HEADER ---------- */}
-      <ChatHeader participant={participant} />
-
-      {/* ---------- MESSAGES CONTAINER ---------- */}
       <View style={styles.container}>
         {/* ---------- MESSAGES VIEW ---------- */}
         {!isLoading ? (
@@ -222,27 +224,28 @@ export default function Chat1to1({ route }) {
             ref={lastMessageRef}
             onContentSizeChange={handleContentSizeChange}
           >
-            {messages.map((item) => {
-              if (item.senderId !== user._id.toString()) {
-                return (
-                  <ChatReceiver
-                    key={item._id}
-                    item={item}
-                    setShowModal={setShowModal}
-                    setSelectedMessage={setSelectedMessage}
-                  />
-                );
-              } else {
-                return (
-                  <ChatSender
-                    key={item._id}
-                    item={item}
-                    setShowModal={setShowModal}
-                    setSelectedMessage={setSelectedMessage}
-                  />
-                );
-              }
-            })}
+            {messages.length > 0 &&
+              messages.map((item) => {
+                if (item.senderId !== user._id.toString()) {
+                  return (
+                    <ChatReceiver
+                      key={item._id}
+                      item={item}
+                      setShowModal={setShowModal}
+                      setSelectedMessage={setSelectedMessage}
+                    />
+                  );
+                } else {
+                  return (
+                    <ChatSender
+                      key={item._id}
+                      item={item}
+                      setShowModal={setShowModal}
+                      setSelectedMessage={setSelectedMessage}
+                    />
+                  );
+                }
+              })}
           </ScrollView>
         ) : (
           <View
@@ -325,7 +328,7 @@ export default function Chat1to1({ route }) {
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const ModalBtn = (props) => {
   return (
@@ -350,11 +353,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
     backgroundColor: "#E2E9F1",
-    justifyContent: "center",
   },
   modal: {
     width: Dimensions.get("window").width,
-    height: 280,
+    height: 270,
     position: "absolute",
     bottom: 0,
     backgroundColor: Colors.white,

@@ -13,9 +13,10 @@ import Birthday from "../Peoples/Birthday";
 import Colors from "../../constants/Colors";
 import AvatarSetting from "../Settings/Profile/AvatarSetting";
 import Chat1to1 from "../../components/Chat/Chat1to1";
-import ChatHeader from "../../components/Chat/ChatHeader";
 import FriendRequestSent from "../Peoples/FriendRequestSent";
 import UserFind from "../Profile/UserFind";
+import { NewConversationChat } from "../Chat/NewConversationChat";
+
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -158,20 +159,15 @@ export default function AppStack() {
         }}
       />
       <Stack.Screen
-          name="Chat1to1"
-          component={Chat1to1}
-          options={({ navigation }) => ({
-            headerShown: true,
-            headerTransparent: true,
-            headerTitle: () => (
-              <ChatHeader 
-                onCall={() => console.log('Call pressed')} 
-                onVideoCall={() => console.log('Video call pressed')} 
-              />
-            ),
-          })}
-        />
-        <Stack.Screen
+        name="Chat1to1"
+        component={Chat1to1}
+        options={({ navigation }) => ({
+          headerShown: false,
+          headerTransparent: true,
+        })}
+      />
+
+       <Stack.Screen
         name="UserFind"
         component={UserFind}
         options={{
@@ -183,6 +179,15 @@ export default function AppStack() {
             fontSize: FontSize.medium,
           },
         }}
+       />
+
+      <Stack.Screen
+        name="NewConversationChat"
+        component={NewConversationChat}
+        options={({ navigation }) => ({
+          headerShown: false,
+          headerTransparent: true,
+        })}
       />
     </Stack.Navigator>
   );

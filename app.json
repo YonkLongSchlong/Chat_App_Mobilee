@@ -29,9 +29,13 @@
     },
     "plugins": [
       [
-        "expo-contacts",
+        // "expo-contacts",
+        // {
+        //   "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        // },
+        "expo-image-picker",
         {
-          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
     ]

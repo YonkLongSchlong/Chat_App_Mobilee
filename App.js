@@ -3,7 +3,6 @@ import { AuthProvider } from "./context/AuthContext";
 import NavigationWrapper from "./screens/Navigations/NavigationWrapper";
 import { View } from "lucide-react-native";
 import { ActivityIndicator } from "react-native";
-import { SocketProvider } from "./context/SocketContext";
 
 export default function App() {
   const [fontLoaded] = useFonts({
@@ -25,9 +24,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <SocketProvider>
-        <NavigationWrapper />
-      </SocketProvider>
+      <NavigationWrapper />
     </AuthProvider>
   );
 }

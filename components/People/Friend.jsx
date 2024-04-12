@@ -4,33 +4,32 @@ import FontSize from "../../constants/FontSize";
 import { Phone, Video } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function Friend({friend}) {
+export default function Friend({ friend }) {
   const navigate = useNavigation();
 
   const handleNavigation = () => {
-    navigate.navigate('Chat1to1');
-  }
+    navigate.navigate("NewConversationChat", {
+      friend,
+    });
+  };
+
   return (
     <Pressable onPress={handleNavigation}>
-        <View style={styles.container}>
-      <View style={styles.usernameContainer}>
-        <Image
-          source={{ uri: friend.avatar }}
-          style={styles.image}
-        />
-        <Text style={styles.usernameText}>{friend.username}</Text>
+      <View style={styles.container}>
+        <View style={styles.usernameContainer}>
+          <Image source={{ uri: `${friend.avatar}` }} style={styles.image} />
+          <Text style={styles.usernameText}>{friend.username}</Text>
+        </View>
+        <View style={styles.iconContainer}>
+          <Pressable>
+            <Phone size={20} color={"black"} />
+          </Pressable>
+          <Pressable>
+            <Video size={20} color={"black"} />
+          </Pressable>
+        </View>
       </View>
-      <View style={styles.iconContainer}>
-        <Pressable>
-          <Phone size={20} color={"black"} />
-        </Pressable>
-        <Pressable>
-          <Video size={20} color={"black"} />
-        </Pressable>
-      </View>
-    </View>
     </Pressable>
-    
   );
 }
 
