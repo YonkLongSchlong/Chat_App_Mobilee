@@ -6,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { SocketProvider } from "../../context/SocketContext";
 import { ConversationsProvider } from "../../context/ConversationsContext";
 import { MessagesProvider } from "../../context/MessagesContext";
+import { FriendsProvider } from "../../context/FriendsContext";
 
 export default function NavigationWrapper() {
   const { token, user } = useContext(AuthContext);
@@ -15,9 +16,11 @@ export default function NavigationWrapper() {
       {token !== null && user !== null ? (
         <SocketProvider>
           <MessagesProvider>
-            <ConversationsProvider>
-              <AppStack />
-            </ConversationsProvider>
+            <FriendsProvider>
+              <ConversationsProvider>
+                <AppStack />
+              </ConversationsProvider>
+            </FriendsProvider>
           </MessagesProvider>
         </SocketProvider>
       ) : (

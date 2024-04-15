@@ -1,10 +1,11 @@
 import { ToastAndroid } from "react-native";
 
 export default useSendMessages = async (
+  user,
   token,
   receiverId,
   message,
-  conversationName
+  friendUsername
 ) => {
   try {
     const response = await fetch(
@@ -17,7 +18,7 @@ export default useSendMessages = async (
         method: "POST",
         body: JSON.stringify({
           message,
-          conversationName,
+          conversationName: `${user.username} + ${friendUsername}`,
         }),
       }
     );

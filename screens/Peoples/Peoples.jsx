@@ -10,13 +10,14 @@ import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
-import { useFetchFriends } from "../../hooks/User/useFetchFriends";
+import { FriendsContext } from "../../context/FriendsContext";
+import { useFetchFriends } from "../../hooks/FriendRequest/useFetchFriends";
 
 export default function Peoples() {
   const [selected, setSelected] = useState("Friends");
   const [friendsSelected, setFriendsSelected] = useState("All");
   const { user, token } = useContext(AuthContext);
-  const [friends, setFriends] = useState([]);
+  const { friends, setFriends } = useContext(FriendsContext);
 
   const fetchFriends = async () => {
     const response = await useFetchFriends(user, token);
@@ -98,11 +99,11 @@ export default function Peoples() {
             setFriendsSelected={setFriendsSelected}
             friendsSelected={friendsSelected}
           />
-          <FriendsOptionButton
+          {/* <FriendsOptionButton
             text={"Online"}
             setFriendsSelected={setFriendsSelected}
             friendsSelected={friendsSelected}
-          />
+          /> */}
         </View>
 
         {/* ---------- SEPARATOR ---------- */}

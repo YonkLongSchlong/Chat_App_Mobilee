@@ -1,7 +1,6 @@
 import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/SocketContext";
-
-import useFetchConversation from "../User/useFetchConversation";
+import useFetchConversation from "../Conversations/useFetchConversation";
 import { AuthContext } from "../../context/AuthContext";
 
 export const useListenNotification = (conversation, setConversation) => {
@@ -9,7 +8,7 @@ export const useListenNotification = (conversation, setConversation) => {
   const { user, token } = useContext(AuthContext);
 
   useEffect(() => {
-    socket?.on("getNotification", (message) => {
+    socket?.on("notification", () => {
       useFetchConversation(user, token, conversation._id)
         .then((data) => {
           setConversation(data);

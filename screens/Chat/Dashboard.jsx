@@ -13,30 +13,29 @@ import ConversationCard from "../../components/Chat/ConversationCard";
 import FontSize from "../../constants/FontSize";
 import { ListFilter } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import useFetchConversations from "../../hooks/User/useFetchConversations";
+import useFetchConversations from "../../hooks/Conversations/useFetchConversations";
 import { AuthContext } from "../../context/AuthContext";
-import { useListenConversations } from "../../hooks/User/useListenConversations";
-import { SocketContext } from "../../context/SocketContext";
+import { useListenConversations } from "../../hooks/ListenSocket/useListenConversations";
 import { ConversationsContext } from "../../context/ConversationsContext";
+import { useListenAcceptRequest } from "../../hooks/ListenSocket/useListenAcceptRequest";
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const { conversations, setConversations } = useContext(ConversationsContext);
   const { user, token } = useContext(AuthContext);
-  useListenConversations();
 
-  const getConversations = async () => {
-    setIsLoading(true);
-    const data = await useFetchConversations(user, token);
-    if (data.length > 0) {
-      setConversations(data);
-    } else {
-      setConversations(null);
-    }
-    setIsLoading(false);
-  };
+  /* LẮNG NGHE SOCKET */
+  useListenConversations();
+  useListenAcceptRequest();
 
   useEffect(() => {
+    const getConversations = async () => {
+      setIsLoading(true);
+      const data = await useFetchConversations(user, token);
+      setConversations(data);
+      setIsLoading(false);
+    };
+
     getConversations();
   }, []);
 

@@ -5,7 +5,6 @@ import {
   TextInput,
   ScrollView,
   Pressable,
-  ToastAndroid,
   SafeAreaView,
   ActivityIndicator,
   Image,
@@ -24,16 +23,15 @@ import * as Sharing from "expo-sharing";
 import FontSize from "../../constants/FontSize";
 import ChatHeaderForNewConverse from "../../components/Chat/ChatHeaderForNewConvers";
 import { MessagesContext } from "../../context/MessagesContext";
-import useFetchMessages from "../../hooks/User/useFetchMessages";
+import useFetchMessages from "../../hooks/Messages/useFetchMessages";
 import { AuthContext } from "../../context/AuthContext";
-import { useListenMesages } from "../../hooks/User/useListenMesages";
-import useSendMessage from "../../hooks/User/useSendMessage";
-import useSendImages from "../../hooks/User/useSendImages";
+import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
+import useSendMessage from "../../hooks/Messages/useSendMessage";
+import useSendImages from "../../hooks/Messages/useSendImages";
 import useDeleteMessage from "../../hooks/Messages/useDeleteMessage";
 import { X, ChevronRight } from "lucide-react-native";
 import { LogBox } from "react-native";
-import { useListenDeleteMesages } from "../../hooks/ListenSocket.js/useListenDeleteMessage";
-import { SocketContext } from "../../context/SocketContext";
+import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
 
 export const NewConversationChat = ({ route }) => {
   const { friend } = route.params;
@@ -45,7 +43,6 @@ export const NewConversationChat = ({ route }) => {
   const { token, user } = useContext(AuthContext);
   const { messages, setMessages } = useContext(MessagesContext);
   const lastMessageRef = useRef();
-  const { socket } = useContext(SocketContext);
   const handleContentSizeChange = () => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollToEnd({
@@ -53,6 +50,8 @@ export const NewConversationChat = ({ route }) => {
       });
     }
   };
+
+  /* LẮNG NGHE SOCKET */
   useListenMesages(messages, setMessages);
   useListenDeleteMesages();
 
@@ -111,6 +110,7 @@ export const NewConversationChat = ({ route }) => {
   const handleSend = async () => {
     if (message.length > 0) {
       const data = await useSendMessage(
+        user,
         token,
         friend._id,
         message,
@@ -119,7 +119,6 @@ export const NewConversationChat = ({ route }) => {
       setMessages((messages) => [...messages, data.newMessage]);
       LogBox.ignoreAllLogs();
       setMessage("");
-      socket.emit("sendNotification", data.newMessage);
     } else {
       console.log("No message or file selected.");
     }

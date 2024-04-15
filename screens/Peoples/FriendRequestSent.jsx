@@ -11,8 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
-import { useFetchFriendRequestSent } from '../../hooks/User/useFetchFriendRequestSent';
-import { useRevocationFriendRequest } from '../../hooks/User/useRevocationFriendRequest';
+import { useFetchFriendRequestSent } from "../../hooks/FriendRequest/useFetchFriendRequestSent";
+import { useRevocationFriendRequest } from "../../hooks/FriendRequest/useRevocationFriendRequest";
 
 export default function FriendRequestSent() {
   const { user, token } = useContext(AuthContext);
@@ -33,8 +33,7 @@ export default function FriendRequestSent() {
 
   useEffect(() => {
     fetchFriendRequestSent();
-  }, 
-);
+  });
 
   return (
     <View style={styles.container}>
@@ -57,7 +56,9 @@ export default function FriendRequestSent() {
               alignItems: "center",
             }}
           >
-            <Text style={styles.notFoundText}>No friend requests sent found</Text>
+            <Text style={styles.notFoundText}>
+              No friend requests sent found
+            </Text>
           </View>
         )}
       </SafeAreaView>
@@ -66,12 +67,15 @@ export default function FriendRequestSent() {
 }
 
 const FriendRequestSentCard = ({ item, user, token }) => {
-
   // Xử lý sự kiện khi nút Revocation được nhấn
   const handleRevocation = async (itemId) => {
-    const response = await useRevocationFriendRequest(user, token, item.recei._id);
+    const response = await useRevocationFriendRequest(
+      user,
+      token,
+      item.recei._id
+    );
     if (response.status == 200) {
-      setAccepted(true);
+      // setAccepted(true);
     }
   };
 
@@ -80,7 +84,7 @@ const FriendRequestSentCard = ({ item, user, token }) => {
       <View style={styles.conversationContainer}>
         {/* ---------- AVATAR ---------- */}
         <View style={styles.avatarContainer}>
-          <Image style={styles.avatar} source={{ uri: item.recei.avatar }} /> 
+          <Image style={styles.avatar} source={{ uri: item.recei.avatar }} />
           {/* {require("../../assets/96YOG1ej_200x200.jpg")}  */}
         </View>
 
@@ -94,7 +98,7 @@ const FriendRequestSentCard = ({ item, user, token }) => {
           {/* ---------- LASTEST MESSAGE ---------- */}
           <View>
             <Text style={styles.messageText} numberOfLines={3}>
-            Want to make friends! Can we be friends?
+              Hello! Can we be friend ?
             </Text>
           </View>
         </View>
@@ -102,13 +106,10 @@ const FriendRequestSentCard = ({ item, user, token }) => {
 
       {/* ---------- BUTTONS ---------- */}
       <View style={styles.btnContainer}>
-            
-            <Pressable onPress={()=> handleRevocation()} >
-            <Text style={styles.btnRevocation}>Revocation
-            </Text>
+        <Pressable onPress={() => handleRevocation()}>
+          <Text style={styles.btnRevocation}>Revocation</Text>
+        </Pressable>
 
-            </Pressable>
-          
         {/*  */}
       </View>
     </View>

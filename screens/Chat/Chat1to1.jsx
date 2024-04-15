@@ -9,29 +9,28 @@ import {
   ActivityIndicator,
   Image,
   Text,
-  ToastAndroid,
   Modal,
   Dimensions,
   Platform,
 } from "react-native";
 import Colors from "../../constants/Colors";
-import ChatReceiver from "./ChatReceiver";
-import ChatSender from "./ChatSender";
+import ChatReceiver from "../../components/Chat/ChatReceiver";
+import ChatSender from "../../components/Chat/ChatSender";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import FontSize from "../../constants/FontSize";
-import ChatHeader from "./ChatHeader";
+import ChatHeader from "../../components/Chat/ChatHeader";
 import { AuthContext } from "../../context/AuthContext";
 import { MessagesContext } from "../../context/MessagesContext";
-import { useListenMesages } from "../../hooks/User/useListenMesages";
-import useSendMessage from "../../hooks/User/useSendMessage";
-import useFetchMessages from "../../hooks/User/useFetchMessages";
-import useSendImages from "../../hooks/User/useSendImages";
+import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
+import useSendMessage from "../../hooks/Messages/useSendMessage";
+import useFetchMessages from "../../hooks/Messages/useFetchMessages";
+import useSendImages from "../../hooks/Messages/useSendImages";
 import { X, ChevronRight } from "lucide-react-native";
-import { useListenDeleteMesages } from "../../hooks/ListenSocket.js/useListenDeleteMessage";
+import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
 import useDeleteMessage from "../../hooks/Messages/useDeleteMessage";
 import { LogBox } from "react-native";
 
@@ -52,8 +51,11 @@ export default function Chat1to1({ route }) {
       });
     }
   };
+
+  /* LẮNG NGHE SOCKET */
   useListenMesages();
   useListenDeleteMesages();
+
   // const handleSelectFile = async () => {
   //   try {
   //     const result = await DocumentPicker.getDocumentAsync({});
@@ -139,7 +141,6 @@ export default function Chat1to1({ route }) {
       selectedMessage.message,
       FileSystem.documentDirectory + fileName
     );
-    console.log(result);
     await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
     setShowModal(false);
   };

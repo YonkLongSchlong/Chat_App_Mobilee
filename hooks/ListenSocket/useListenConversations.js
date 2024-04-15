@@ -15,7 +15,6 @@ export const useListenConversations = () => {
       const newConversations = conversations.filter((convers) => {
         convers._id !== conversation._id;
       });
-      console.log(newConversations);
       if (newConversations == null) {
         setConversations([]);
       }

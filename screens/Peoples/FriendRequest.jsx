@@ -11,8 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
-import { useFetchFriendRequest } from "../../hooks/User/FetchFriendRequests";
-import { useAcceptFriendRequest } from "../../hooks/User/useAcceptFriendRequest";
+import { useFetchFriendRequest } from "../../hooks/FriendRequest/FetchFriendRequests";
+import { useAcceptFriendRequest } from "../../hooks/FriendRequest/useAcceptFriendRequest";
 
 export default function FriendRequest() {
   const { user, token } = useContext(AuthContext);
@@ -21,7 +21,7 @@ export default function FriendRequest() {
   const fetchFriendRequest = async () => {
     const response = await useFetchFriendRequest(user, token);
     const data = await response.json();
-    if (response.status === 401) {
+    if (response.status === 404) {
       setFriendRequests(null);
     } else {
       setFriendRequests(data);
