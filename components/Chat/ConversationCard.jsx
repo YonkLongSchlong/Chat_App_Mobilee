@@ -8,6 +8,7 @@ import useFetchConversation from "../../hooks/Conversations/useFetchConversation
 import { MessagesContext } from "../../context/MessagesContext";
 import { useListenNotification } from "../../hooks/ListenSocket/useListenNotification";
 import { formatTime } from "../../utils/FormatTime";
+import { useFetchCreateGroup } from "../../hooks/ChatGroup/useFetchCreateGroup";
 
 export default function ConversationCard({ convers }) {
   const navigation = useNavigation();
@@ -15,10 +16,11 @@ export default function ConversationCard({ convers }) {
   const [conversation, setConversation] = useState(convers);
   const { messages } = useContext(MessagesContext);
   const { user, token } = useContext(AuthContext);
-  const check = lastMessage?.messageType == "image" ? true : false;
   const lastMessage = conversation.messages[conversation.messages.length - 1];
+  const check = lastMessage?.messageType == "image" ? true : false;
 
   let participant = {};
+
   conversation.participants.forEach((userToChat) => {
     if (userToChat._id != user._id) {
       participant = userToChat;

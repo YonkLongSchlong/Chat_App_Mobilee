@@ -38,7 +38,7 @@ export const NewConversationChat = ({ route }) => {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const { token, user } = useContext(AuthContext);
   const { messages, setMessages } = useContext(MessagesContext);
@@ -77,18 +77,18 @@ export const NewConversationChat = ({ route }) => {
       if (result.canceled) {
         return;
       }
-      setSelectedFile(result.assets);
+      setSelectedImage(result.assets);
     }
   };
 
-  const handleSendImage = async (selectedFile) => {
+  const handleSendImage = async (selectedImage) => {
     const formData = new FormData();
-    for (let i = 0; i < selectedFile.length; i++) {
-      const fileMime = selectedFile[i].type;
-      const fileType = selectedFile[i].uri.split(".").pop();
-      const fileName = selectedFile[i].uri.split("/").pop();
+    for (let i = 0; i < selectedImage.length; i++) {
+      const fileMime = selectedImage[i].type;
+      const fileType = selectedImage[i].uri.split(".").pop();
+      const fileName = selectedImage[i].uri.split("/").pop();
       formData.append("images[]", {
-        uri: `${selectedFile[i].uri}`,
+        uri: `${selectedImage[i].uri}`,
         type: `${fileMime}/${fileType}`,
         name: `${fileName}`,
       });
@@ -103,7 +103,7 @@ export const NewConversationChat = ({ route }) => {
       return;
     } else {
       setMessages((messages) => [...messages, ...data]);
-      setSelectedFile(null);
+      setSelectedImage(null);
     }
   };
 
@@ -130,7 +130,6 @@ export const NewConversationChat = ({ route }) => {
       selectedMessage.message,
       FileSystem.documentDirectory + fileName
     );
-    console.log(result);
     await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
     setShowModal(false);
   };
@@ -188,7 +187,7 @@ export const NewConversationChat = ({ route }) => {
   }, []);
 
   return (
-    <SafeAreaView style={{ backgroundColor: "white", flex: 1, paddingTop: 50 }}>
+    <SafeAreaView style={styles.safeAreaView}>
       {/* ---------- CHAT MODAL ---------- */}
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <View style={styles.modal}>
@@ -214,10 +213,12 @@ export const NewConversationChat = ({ route }) => {
           </Pressable>
         </View>
       </Modal>
+
+      {/* ---------- CHAT HEADER ---------- */}
       <ChatHeaderForNewConverse friend={friend} />
 
+      {/* ---------- MESSAGES CONTAINER ---------- */}
       <View style={styles.container}>
-        {/* ---------- MESSAGES VIEW ---------- */}
         {!isLoading ? (
           <ScrollView
             ref={lastMessageRef}
@@ -299,10 +300,10 @@ export const NewConversationChat = ({ route }) => {
         </View>
 
         {/* Hiển thị hình ảnh đã chọn */}
-        {selectedFile && (
+        {selectedImage && (
           <>
             <ScrollView horizontal style={styles.selectedImageContainer}>
-              {selectedFile.map((file, index) => {
+              {selectedImage.map((file, index) => {
                 return (
                   <Image
                     key={index}
@@ -316,7 +317,7 @@ export const NewConversationChat = ({ route }) => {
               <Pressable
                 style={styles.sendImageBtn}
                 onPress={() => {
-                  handleSendImage(selectedFile);
+                  handleSendImage(selectedImage);
                 }}
               >
                 <Text style={styles.sendImageBtnText}>Send</Text>
@@ -348,6 +349,11 @@ const ModalBtn = (props) => {
 };
 
 const styles = StyleSheet.create({
+  safeAreaView: {
+    backgroundColor: "white",
+    flex: 1,
+    paddingTop: 50,
+  },
   container: {
     flex: 1,
     paddingTop: 10,

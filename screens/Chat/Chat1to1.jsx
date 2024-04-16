@@ -40,7 +40,7 @@ export default function Chat1to1({ route }) {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const { user, token } = useContext(AuthContext);
   const lastMessageRef = useRef();
@@ -77,18 +77,18 @@ export default function Chat1to1({ route }) {
       if (result.canceled) {
         return;
       }
-      setSelectedFile(result.assets);
+      setSelectedImage(result.assets);
     }
   };
 
-  const handleSendImage = async (selectedFile) => {
+  const handleSendImage = async (selectedImage) => {
     const formData = new FormData();
-    for (let i = 0; i < selectedFile.length; i++) {
-      const fileMime = selectedFile[i].type;
-      const fileType = selectedFile[i].uri.split(".").pop();
-      const fileName = selectedFile[i].uri.split("/").pop();
+    for (let i = 0; i < selectedImage.length; i++) {
+      const fileMime = selectedImage[i].type;
+      const fileType = selectedImage[i].uri.split(".").pop();
+      const fileName = selectedImage[i].uri.split("/").pop();
       formData.append("images[]", {
-        uri: `${selectedFile[i].uri}`,
+        uri: `${selectedImage[i].uri}`,
         type: `${fileMime}/${fileType}`,
         name: `${fileName}`,
       });
@@ -103,7 +103,7 @@ export default function Chat1to1({ route }) {
       return;
     }
     setMessages((messages) => [...messages, ...data]);
-    setSelectedFile(null);
+    setSelectedImage(null);
   };
 
   const handleSend = async () => {
@@ -183,13 +183,7 @@ export default function Chat1to1({ route }) {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "white",
-        flex: 1,
-        paddingTop: 50,
-      }}
-    >
+    <SafeAreaView style={styles.safeAreaView}>
       {/* ---------- CHAT MODAL ---------- */}
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <View style={styles.modal}>
@@ -217,7 +211,6 @@ export default function Chat1to1({ route }) {
 
       {/* ---------- MESSAGES CONTAINER ---------- */}
       <View style={styles.container}>
-        {/* ---------- MESSAGES VIEW ---------- */}
         {!isLoading ? (
           <ScrollView
             ref={lastMessageRef}
@@ -298,10 +291,10 @@ export default function Chat1to1({ route }) {
         </View>
 
         {/* Hiển thị hình ảnh đã chọn */}
-        {selectedFile && (
+        {selectedImage && (
           <>
             <ScrollView horizontal style={styles.selectedImageContainer}>
-              {selectedFile.map((file, index) => {
+              {selectedImage.map((file, index) => {
                 return (
                   <Image
                     key={index}
@@ -315,7 +308,7 @@ export default function Chat1to1({ route }) {
               <Pressable
                 style={styles.sendImageBtn}
                 onPress={() => {
-                  handleSendImage(selectedFile);
+                  handleSendImage(selectedImage);
                 }}
               >
                 <Text style={styles.sendImageBtnText}>Send</Text>
@@ -347,6 +340,11 @@ const ModalBtn = (props) => {
 };
 
 const styles = StyleSheet.create({
+  safeAreaView: {
+    backgroundColor: "white",
+    flex: 1,
+    paddingTop: 50,
+  },
   container: {
     flex: 1,
     paddingTop: 10,

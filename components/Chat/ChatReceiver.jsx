@@ -21,7 +21,7 @@ const ChatReceiver = ({ item, setShowModal, setSelectedMessage }) => {
       <View style={styles.messageBubble}>
         {isImage ? (
           <View>
-            <Image source={{ uri: item.message }} style={styles.image} />
+            <Image source={{ uri: item.messageUrl }} style={styles.image} />
             <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
           </View>
         ) : (

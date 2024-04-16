@@ -4,7 +4,7 @@ import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 
 const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
-  const isImage = item.messageType === "image" ? true : false;
+  const messageType = item.messageType;
   const formatTime = (time) => {
     const options = { hour: "numeric", minute: "numeric" };
     return new Date(time).toLocaleString("en-US", options);
@@ -19,9 +19,14 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
       }}
     >
       <View style={styles.messageBubble}>
-        {isImage ? (
+        {messageType == "image" ? (
           <>
-            <Image source={{ uri: item.message }} style={styles.image} />
+            <Image source={{ uri: item.messageUrl }} style={styles.image} />
+            <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
+          </>
+        ) : messageType == "text" ? (
+          <>
+            <Text style={styles.messageText}>{item.message}</Text>
             <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
           </>
         ) : (
