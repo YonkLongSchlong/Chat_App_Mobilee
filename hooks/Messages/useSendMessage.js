@@ -1,12 +1,6 @@
 import { ToastAndroid } from "react-native";
 
-export default useSendMessages = async (
-  user,
-  token,
-  receiverId,
-  message,
-  friendUsername
-) => {
+export default useSendMessages = async (token, receiverId, message) => {
   try {
     const response = await fetch(
       process.env.EXPO_PUBLIC_BASE_URL + `/messages/send/${receiverId}`,
@@ -18,7 +12,6 @@ export default useSendMessages = async (
         method: "POST",
         body: JSON.stringify({
           message,
-          conversationName: `${user.username} + ${friendUsername}`,
         }),
       }
     );

@@ -32,6 +32,7 @@ import useDeleteMessage from "../../hooks/Messages/useDeleteMessage";
 import { X, ChevronRight } from "lucide-react-native";
 import { LogBox } from "react-native";
 import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
+import { ConversationsContext } from "../../context/ConversationsContext";
 
 export const NewConversationChat = ({ route }) => {
   const { friend } = route.params;
@@ -52,7 +53,7 @@ export const NewConversationChat = ({ route }) => {
   };
 
   /* LẮNG NGHE SOCKET */
-  useListenMesages(messages, setMessages);
+  useListenMesages();
   useListenDeleteMesages();
 
   // const handleSelectFile = async () => {
@@ -93,30 +94,19 @@ export const NewConversationChat = ({ route }) => {
         name: `${fileName}`,
       });
     }
-    formData.append(
-      "conversationName",
-      `${friend.username} + ${user.username}`
-    );
     const data = await useSendImages(token, friend._id, formData);
     LogBox.ignoreAllLogs();
-    if (messages.length == 0) {
+    if (data.length == 0) {
       return;
-    } else {
-      setMessages((messages) => [...messages, ...data]);
-      setSelectedImage(null);
     }
+    setMessages((messages) => [...messages, ...data]);
+    setSelectedImage(null);
   };
 
   const handleSend = async () => {
     if (message.length > 0) {
-      const data = await useSendMessage(
-        user,
-        token,
-        friend._id,
-        message,
-        friend.username
-      );
-      setMessages((messages) => [...messages, data.newMessage]);
+      const data = await useSendMessage(token, friend._id, message);
+      setMessages([...messages, data.newMessage]);
       LogBox.ignoreAllLogs();
       setMessage("");
     } else {

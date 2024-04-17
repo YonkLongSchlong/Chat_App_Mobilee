@@ -13,14 +13,12 @@ export const useListenConversations = () => {
 
     socket?.on("delConversation", (conversation) => {
       const newConversations = conversations.filter((convers) => {
-        convers._id !== conversation._id;
+        return convers._id !== conversation._id;
       });
-      if (newConversations == null) {
+      if (newConversations.length == 0) {
         setConversations([]);
       }
       setConversations(newConversations);
     });
-
-    socket?.on("newMessage");
-  }, [socket]);
+  }, [socket, conversations, setConversations]);
 };

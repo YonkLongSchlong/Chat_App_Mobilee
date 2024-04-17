@@ -93,10 +93,6 @@ export default function Chat1to1({ route }) {
         name: `${fileName}`,
       });
     }
-    formData.append(
-      "conversationName",
-      `${participant.username} + ${user.username}`
-    );
     const data = await useSendImages(token, participant._id, formData);
     LogBox.ignoreAllLogs();
     if (data.length == 0) {
@@ -108,12 +104,7 @@ export default function Chat1to1({ route }) {
 
   const handleSend = async () => {
     if (message.length > 0) {
-      const data = await useSendMessage(
-        token,
-        participant._id,
-        message,
-        participant.username
-      );
+      const data = await useSendMessage(token, participant._id, message);
       setMessages([...messages, data.newMessage]);
       setMessage("");
     } else {
