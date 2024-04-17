@@ -16,6 +16,9 @@ import Chat1to1 from "../Chat/Chat1to1";
 import FriendRequestSent from "../Peoples/FriendRequestSent";
 import UserFind from "../Peoples/UserFind";
 import { NewConversationChat } from "../Chat/NewConversationChat";
+import ChatGroup from "../../components/Chat/ChatGroup";
+import SelectChatGroup from "../../components/Chat/SelectChatGroup";
+import Option from "../../components/Chat/Option";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -188,6 +191,51 @@ export default function AppStack() {
           headerTransparent: true,
         })}
       />
+
+      <Stack.Screen
+        name="ChatGroup"
+        component={ChatGroup}
+        options={({ route }) => ({
+          headerShown: true,
+          headerTitle: route.params.groupName,
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        })}
+      />
+
+      <Stack.Screen
+        name="SelectChatGroup"
+        component={SelectChatGroup}
+        options={{
+          headerShown: true,
+          headerTitle: "Tạo nhóm",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
+
+
+      <Stack.Screen
+        name="Option"
+        component={Option}
+        options={{
+          headerShown: true,
+          headerTitle: "Tùy chọn",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
     </Stack.Navigator>
+
+
   );
 }

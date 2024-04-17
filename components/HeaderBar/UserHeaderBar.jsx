@@ -8,23 +8,25 @@ import { AuthContext } from "../../context/AuthContext";
 import { Search, QrCode, Plus } from "lucide-react-native";
 
 export default function UserHeaderBar() {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
   const [phoneNumber, setPhoneNumber] = useState("");
   const { user, token } = useContext(AuthContext);
-  
 
-  const handleSearch = async () => {
-    
+
+  const handlePlus = async () => {
+    navigation.navigate("SelectChatGroup")
   };
   return (
     <View style={styles.wrapContainer}>
       <View style={styles.container}>
-      <TouchableOpacity >
+        <TouchableOpacity >
           <Search size={24} color={"black"} />
         </TouchableOpacity>
         {/* <Search size={24} color={"black"}/> */}
         <TextInput style={styles.textInput} placeholder="Search" />
-        <Plus size={24} color={"black"} />
+        <TouchableOpacity onPress={handlePlus}>
+          <Plus size={24} color={"black"} />
+        </TouchableOpacity>
         <QrCode size={24} color={"black"} />
       </View>
     </View>

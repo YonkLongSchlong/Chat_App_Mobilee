@@ -16,8 +16,8 @@ export default function ConversationCard({ convers }) {
   const [conversation, setConversation] = useState(convers);
   const { messages } = useContext(MessagesContext);
   const { user, token } = useContext(AuthContext);
-  const lastMessage = conversation.messages[conversation.messages.length - 1];
-  const check = lastMessage?.messageType == "image" ? true : false;
+  // const lastMessage = conversation.messages[conversation.messages.length - 1];
+  // const check = lastMessage?.messageType == "image" ? true : false;
 
   let participant = {};
 
@@ -69,19 +69,19 @@ export default function ConversationCard({ convers }) {
               </View>
 
               {/* ---------- LASTEST MESSAGE ---------- */}
-              <View>
+              {/* <View>
                 <Text style={styles.messageText} numberOfLines={1}>
-                  {check ? "Image" : `${lastMessage.message}`}
+                  {check ? "Image" : `${lastMessage?.message}`}
                 </Text>
-              </View>
+              </View> */}
             </View>
 
             {/* ---------- TIME OF LAST MESSAGE ---------- */}
-            <View>
+            {/* <View>
               <Text style={styles.timeText}>
                 {formatTime(lastMessage?.createdAt)}
               </Text>
-            </View>
+            </View> */}
           </View>
 
           {/* ---------- SEPARATOR ---------- */}
