@@ -18,6 +18,8 @@ import UserFind from "../Peoples/UserFind";
 import { NewConversationChat } from "../Chat/NewConversationChat";
 import { ChatGroup } from "../Chat/ChatGroup";
 import { ShareMessage } from "../Chat/ShareMessage";
+import Option from "../Chat/Option";
+import SelectChatGroup from "../Chat/SelectedChatGroup";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -197,6 +199,32 @@ export default function AppStack() {
           headerShown: false,
           headerTransparent: true,
         })}
+      />
+      <Stack.Screen
+        name="Option"
+        component={Option}
+        options={{
+          headerShown: true,
+          headerTitle: "Tùy chọn",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="SelectChatGroup"
+        component={SelectChatGroup}
+        options={{
+          headerShown: true,
+          headerTitle: "Tạo nhóm",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
       />
       <Stack.Screen
         name="ShareMessage"
