@@ -13,10 +13,12 @@ import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
 import { useFetchFriendRequest } from "../../hooks/FriendRequest/FetchFriendRequests";
 import { useAcceptFriendRequest } from "../../hooks/FriendRequest/useAcceptFriendRequest";
+import { FriendsContext } from "../../context/FriendsContext";
 
 export default function FriendRequest() {
   const { user, token } = useContext(AuthContext);
   const [friendRequests, setFriendRequests] = useState([]);
+  const { friends, setFriends } = useContext(FriendsContext);
 
   const fetchFriendRequest = async () => {
     const response = await useFetchFriendRequest(user, token);
@@ -41,7 +43,13 @@ export default function FriendRequest() {
             <FlatList
               data={friendRequests}
               renderItem={({ item }) => (
-                <FriendRequestCard item={item} user={user} token={token} />
+                <FriendRequestCard
+                  item={item}
+                  user={user}
+                  token={token}
+                  setFriends={setFriends}
+                  friends={friends}
+                />
               )}
             />
           </View>
@@ -61,13 +69,15 @@ export default function FriendRequest() {
   );
 }
 
-const FriendRequestCard = ({ item, user, token }) => {
+const FriendRequestCard = ({ item, user, token, setFriends, friends }) => {
   const [accepted, setAccepted] = useState(false);
 
   // Xử lý sự kiện khi nút Accept được nhấn
   const handleAccept = async (itemId) => {
     const response = await useAcceptFriendRequest(user, token, item.req._id);
     if (response.status == 200) {
+      const data = await response.json();
+      setFriends([...friends, data[2]]);
       setAccepted(true);
     }
   };

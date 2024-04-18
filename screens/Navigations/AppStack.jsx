@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomTab from "./BottomTab";
 import Settings from "../Settings/Settings";
@@ -16,6 +16,8 @@ import Chat1to1 from "../Chat/Chat1to1";
 import FriendRequestSent from "../Peoples/FriendRequestSent";
 import UserFind from "../Peoples/UserFind";
 import { NewConversationChat } from "../Chat/NewConversationChat";
+import { ChatGroup } from "../Chat/ChatGroup";
+import { ShareMessage } from "../Chat/ShareMessage";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -167,6 +169,15 @@ export default function AppStack() {
       />
 
       <Stack.Screen
+        name="ChatGroup"
+        component={ChatGroup}
+        options={({ navigation }) => ({
+          headerShown: false,
+          headerTransparent: true,
+        })}
+      />
+
+      <Stack.Screen
         name="UserFind"
         component={UserFind}
         options={{
@@ -179,13 +190,21 @@ export default function AppStack() {
           },
         }}
       />
-
       <Stack.Screen
         name="NewConversationChat"
         component={NewConversationChat}
         options={({ navigation }) => ({
           headerShown: false,
           headerTransparent: true,
+        })}
+      />
+      <Stack.Screen
+        name="ShareMessage"
+        component={ShareMessage}
+        options={({ navigation }) => ({
+          headerShown: false,
+          headerTransparent: true,
+          presentation: "modal",
         })}
       />
     </Stack.Navigator>

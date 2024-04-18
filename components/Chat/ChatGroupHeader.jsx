@@ -1,4 +1,3 @@
-import React from "react";
 import {
   View,
   Text,
@@ -10,10 +9,9 @@ import {
 import { Ionicons } from "@expo/vector-icons"; // Import thư viện icon
 import FontSize from "../../constants/FontSize";
 import Colors from "../../constants/Colors";
-import { ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function ChatHeader({ onCall, onVideoCall, participant }) {
+export const ChatGroupHeader = ({ conversation }) => {
   const navigation = useNavigation();
   return (
     <SafeAreaView
@@ -30,34 +28,34 @@ export default function ChatHeader({ onCall, onVideoCall, participant }) {
             style={styles.backBtnContainer}
             onPress={() => navigation.popToTop()}
           >
-            <ArrowLeft size={24} color={Colors.black} />
+            <Ionicons name="arrow-back" size={24} color={Colors.black} />
           </Pressable>
           <View style={styles.avartaContainer}>
             <Image
               style={{ height: 45, width: 45, resizeMode: "cover" }}
-              source={{ uri: `${participant.avatar}` }}
+              source={{ uri: `${conversation.conversationImage}` }}
             />
           </View>
-          <Text style={styles.headerText}>{participant.username}</Text>
+          <Text style={styles.headerText}>{conversation.name}</Text>
         </View>
 
         {/* ---------- ICON CONTAINER ---------- */}
         <View style={styles.iconContainer}>
-          <Pressable onPress={onCall}>
-            <Ionicons name="call-outline" size={22} color={Colors.primary} />
-          </Pressable>
-          <Pressable onPress={onVideoCall}>
+          <Pressable>
             <Ionicons
               name="videocam-outline"
               size={22}
               color={Colors.primary}
             />
           </Pressable>
+          <Pressable>
+            <Ionicons name="grid-outline" size={22} color={Colors.primary} />
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

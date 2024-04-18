@@ -41,10 +41,14 @@ export default function ChatHeaderForNewConverse({ friend }) {
         </View>
         <View style={styles.iconContainer}>
           <Pressable>
-            <Ionicons name="call" size={22} color={Colors.primary} />
+            <Ionicons name="call-outline" size={22} color={Colors.primary} />
           </Pressable>
           <Pressable>
-            <Ionicons name="videocam" size={22} color={Colors.primary} />
+            <Ionicons
+              name="videocam-outline"
+              size={22}
+              color={Colors.primary}
+            />
           </Pressable>
         </View>
       </View>
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     flexDirection: "row",
     alignItems: "center",
-    gap: 15,
+    gap: 25,
   },
   avartaContainer: {
     borderRadius: 100,

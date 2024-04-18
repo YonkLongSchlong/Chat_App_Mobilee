@@ -23,18 +23,18 @@ import * as Sharing from "expo-sharing";
 import FontSize from "../../constants/FontSize";
 import ChatHeaderForNewConverse from "../../components/Chat/ChatHeaderForNewConvers";
 import { MessagesContext } from "../../context/MessagesContext";
-import useFetchMessages from "../../hooks/Messages/useFetchMessages";
 import { AuthContext } from "../../context/AuthContext";
 import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
-import useSendMessage from "../../hooks/Messages/useSendMessage";
-import useSendImages from "../../hooks/Messages/useSendImages";
-import useDeleteMessage from "../../hooks/Messages/useDeleteMessage";
-import { X, ChevronRight } from "lucide-react-native";
 import { LogBox } from "react-native";
 import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
-import { ConversationsContext } from "../../context/ConversationsContext";
+import {
+  useDeleteMessage,
+  useSendImages,
+  useFetchMessages,
+  useSendMessage,
+} from "../../hooks/Messages/index";
 
-export const NewConversationChat = ({ route }) => {
+export const NewConversationChat = ({ route, navigation }) => {
   const { friend } = route.params;
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -152,7 +152,6 @@ export const NewConversationChat = ({ route }) => {
   };
 
   const handleDelete = async () => {
-    setIsLoading(true);
     const newMessages = await useDeleteMessage(
       messages,
       user,
@@ -162,7 +161,6 @@ export const NewConversationChat = ({ route }) => {
     );
     setMessages(newMessages);
     setShowModal(false);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -191,7 +189,15 @@ export const NewConversationChat = ({ route }) => {
               label="Delete this message"
               deleteMessage={handleDelete}
             />
-            <ModalBtn label="Share this message" />
+            <ModalBtn
+              label="Share this message"
+              deleteMessage={() => {
+                setShowModal(false);
+                navigation.navigate("ShareMessage", {
+                  selectedMessage,
+                });
+              }}
+            />
           </View>
           <Pressable
             style={styles.closeModalBtn}
@@ -199,7 +205,7 @@ export const NewConversationChat = ({ route }) => {
               setShowModal(false);
             }}
           >
-            <X size={24} color={Colors.black} />
+            <Ionicons name="close" size={22} color={Colors.black} />
           </Pressable>
         </View>
       </Modal>
@@ -223,6 +229,7 @@ export const NewConversationChat = ({ route }) => {
                       item={item}
                       setShowModal={setShowModal}
                       setSelectedMessage={setSelectedMessage}
+                      participant={friend}
                     />
                   );
                 } else {
@@ -263,7 +270,7 @@ export const NewConversationChat = ({ route }) => {
           {/* ---------- SELECT IMAGE BTN ---------- */}
           <Pressable onPress={handleSelectImage}>
             <Ionicons
-              name="image"
+              name="image-outline"
               size={24}
               color={Colors.primary}
               style={styles.optionButtonIcon}
@@ -332,7 +339,7 @@ const ModalBtn = (props) => {
         <Text style={styles.labelText}>{props.label}</Text>
       </View>
       <View>
-        <ChevronRight size={24} color={Colors.black} />
+        <Ionicons name="chevron-forward" size={22} color={Colors.black} />
       </View>
     </Pressable>
   );

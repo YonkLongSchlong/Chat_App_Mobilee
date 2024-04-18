@@ -54,7 +54,12 @@ export default function ConversationCard({ convers }) {
             <View style={styles.avartaContainer}>
               <Image
                 style={{ height: 65, width: 65, resizeMode: "cover" }}
-                source={{ uri: `${participant?.avatar}` }}
+                source={{
+                  uri:
+                    conversation.conversationImage == undefined
+                      ? `${participant?.avatar}`
+                      : `${conversation.conversationImage}`,
+                }}
               />
             </View>
 
@@ -71,17 +76,25 @@ export default function ConversationCard({ convers }) {
 
               {/* ---------- LASTEST MESSAGE ---------- */}
               <View>
-                <Text style={styles.messageText} numberOfLines={1}>
-                  {check ? "Image" : `${lastMessage?.message}`}
-                </Text>
+                {!lastMessage ? null : (
+                  <Text style={styles.messageText} numberOfLines={1}>
+                    {check ? "Image" : `${lastMessage?.message}`}
+                  </Text>
+                )}
               </View>
             </View>
 
             {/* ---------- TIME OF LAST MESSAGE ---------- */}
             <View>
-              <Text style={styles.timeText}>
-                {formatTime(lastMessage?.createdAt)}
-              </Text>
+              {!lastMessage ? (
+                <Text style={styles.timeText}>
+                  {formatTime(conversation.createdAt)}
+                </Text>
+              ) : (
+                <Text style={styles.timeText}>
+                  {formatTime(lastMessage?.createdAt)}
+                </Text>
+              )}
             </View>
           </View>
 

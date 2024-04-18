@@ -15,6 +15,13 @@ export const useListenMesages = () => {
       }
     });
 
+    socket?.on("delMessage", (docs) => {
+      const newMessages = messages.filter((message) => {
+        return message._id !== docs._id;
+      });
+      setMessages(newMessages);
+    });
+
     return () => socket.off("newMessage");
   }, [socket, messages, setMessages]);
 };

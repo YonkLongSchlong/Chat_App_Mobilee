@@ -9,29 +9,12 @@ import Friend from "../../components/People/Friend";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { AuthContext } from "../../context/AuthContext";
 import { FriendsContext } from "../../context/FriendsContext";
-import { useFetchFriends } from "../../hooks/FriendRequest/useFetchFriends";
 
 export default function Peoples() {
   const [selected, setSelected] = useState("Friends");
   const [friendsSelected, setFriendsSelected] = useState("All");
-  const { user, token } = useContext(AuthContext);
-  const { friends, setFriends } = useContext(FriendsContext);
-
-  const fetchFriends = async () => {
-    const response = await useFetchFriends(user, token);
-    const data = await response.json();
-    if (response.status === 401) {
-      setFriends(null);
-    } else {
-      setFriends(data);
-    }
-  };
-
-  useEffect(() => {
-    fetchFriends();
-  }, []);
+  const { friends } = useContext(FriendsContext);
 
   return (
     <>
