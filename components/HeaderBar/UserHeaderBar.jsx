@@ -12,9 +12,8 @@ export default function UserHeaderBar() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const { user, token } = useContext(AuthContext);
   
-
-  const handleSearch = async () => {
-    
+  const handlePlus = async () => {
+    navigation.navigate("SelectChatGroup")
   };
   return (
     <View style={styles.wrapContainer}>
@@ -24,7 +23,9 @@ export default function UserHeaderBar() {
         </TouchableOpacity>
         {/* <Search size={24} color={"black"}/> */}
         <TextInput style={styles.textInput} placeholder="Search" />
-        <Plus size={24} color={"black"} />
+        <TouchableOpacity onPress={handlePlus}>
+          <Plus size={24} color={"black"} />
+        </TouchableOpacity>
         <QrCode size={24} color={"black"} />
       </View>
     </View>

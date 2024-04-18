@@ -12,7 +12,12 @@ import Colors from "../../constants/Colors";
 import { useNavigation } from "@react-navigation/native";
 
 export const ChatGroupHeader = ({ conversation }) => {
-  const navigation = useNavigation();
+  const navigative = useNavigation();
+  
+  const handlePressOption = () => {
+    navigative.navigate('Option', { conversation });
+  }
+
   return (
     <SafeAreaView
       style={{
@@ -48,7 +53,7 @@ export const ChatGroupHeader = ({ conversation }) => {
               color={Colors.primary}
             />
           </Pressable>
-          <Pressable>
+          <Pressable onPress={handlePressOption}>
             <Ionicons name="grid-outline" size={22} color={Colors.primary} />
           </Pressable>
         </View>

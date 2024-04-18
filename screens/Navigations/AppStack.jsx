@@ -20,6 +20,7 @@ import { ChatGroup } from "../Chat/ChatGroup";
 import { ShareMessage } from "../Chat/ShareMessage";
 import Option from "../Chat/Option";
 import SelectChatGroup from "../Chat/SelectedChatGroup";
+import AddFriendIntoGroup from "../Chat/AddFriendIntoGroup";
 
 export default function AppStack() {
   const Stack = createNativeStackNavigator();
@@ -234,6 +235,19 @@ export default function AppStack() {
           headerTransparent: true,
           presentation: "modal",
         })}
+      />
+      <Stack.Screen
+        name="AddFriendIntoGroup"
+        component={AddFriendIntoGroup}
+        options={{
+          headerShown: true,
+          headerTitle: "Thêm thành viên",
+          headerTransparent: true,
+          headerTitleStyle: {
+            fontFamily: "semiBold",
+            fontSize: FontSize.medium,
+          },
+        }}
       />
     </Stack.Navigator>
   );
