@@ -1,22 +1,28 @@
-export const useFetchCreateGroup = async () => {
-  const participantsId = [
-    "66122dc72c39a20527c1cd5a",
-    "66122de62c39a20527c1cd61",
-  ];
-  const response = await fetch(
-    process.env.EXPO_PUBLIC_BASE_URL + "/group/create",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        participantsId,
-        conversationName: "Test",
-      }),
-    }
-  );
-  const data = await response.json();
-  console.log(data);
+export const useFetchCreateGroup = async (
+  user,
+  token,
+  participantsId,
+  conversationName
+) => {
+  try {
+    const response = await fetch(
+      process.env.EXPO_PUBLIC_BASE_URL + `/group/create`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          participantsId: participantsId,
+          conversationName: conversationName,
+        }),
+      }
+    );
+    // const data = await response.json();
+    // console.log("Data", data);
+    return response;
+  } catch (error) {
+    console.log({ Error: "Create group fail", msg: error.message });
+  }
 };
