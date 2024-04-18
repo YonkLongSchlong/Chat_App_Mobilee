@@ -1,17 +1,22 @@
 import { ToastAndroid } from "react-native";
 
-export default useSendMessages = async (token, receiverId, message) => {
+export default useShareGroupChatMessages = async (
+  token,
+  conversationId,
+  messageId
+) => {
   try {
     const response = await fetch(
-      process.env.EXPO_PUBLIC_BASE_URL + `/messages/send/${receiverId}`,
+      process.env.EXPO_PUBLIC_BASE_URL + "/group/messages/share",
       {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        method: "POST",
         body: JSON.stringify({
-          message,
+          conversationId,
+          messageId,
         }),
       }
     );

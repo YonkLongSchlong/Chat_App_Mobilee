@@ -7,7 +7,6 @@ export default useDeleteMessages = async (
   token,
   messageId
 ) => {
-  console.log(messageId);
   try {
     const response = await fetch(
       process.env.EXPO_PUBLIC_BASE_URL +
@@ -21,7 +20,6 @@ export default useDeleteMessages = async (
     );
     const data = await response.json();
     if (data.error) throw new Error(data, error);
-    console.log(data);
     const newMessages = messages.filter((message) => message._id !== data._id);
     return newMessages;
   } catch (error) {

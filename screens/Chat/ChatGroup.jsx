@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -12,31 +12,37 @@ import {
   Modal,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
 import Colors from "../../constants/Colors";
+import FontSize from "../../constants/FontSize";
 import ChatReceiver from "../../components/Chat/ChatReceiver";
 import ChatSender from "../../components/Chat/ChatSender";
+import { ChatGroupHeader } from "../../components/Chat/ChatGroupHeader";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import FontSize from "../../constants/FontSize";
-import ChatHeader from "../../components/Chat/ChatHeader";
 import { AuthContext } from "../../context/AuthContext";
 import { MessagesContext } from "../../context/MessagesContext";
+import { LogBox } from "react-native";
+import {
+  useDeleteGroupChatMessage,
+  useSendGroupChatImages,
+  useSendGroupChatMessage,
+  useFetchGroupChatMessages,
+  useCloseGroupChat,
+} from "../../hooks/ChatGroup/index";
+import { SocketContext } from "../../context/SocketContext";
 import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
 import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
-import {
-  useDeleteMessage,
-  useSendImages,
-  useFetchMessages,
-  useSendMessage,
-} from "../../hooks/Messages/index";
-import { LogBox } from "react-native";
 
-export default function Chat1to1({ route, navigation }) {
-  const { participant } = route.params;
+export const ChatGroup = ({ route, navigation }) => {
+  const { conversation } = route.params;
+  const [isRetired, setIsRetired] = useState(
+    conversation.status == 2 ? true : false
+  );
   const { messages, setMessages } = useContext(MessagesContext);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -45,6 +51,7 @@ export default function Chat1to1({ route, navigation }) {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const { user, token } = useContext(AuthContext);
   const lastMessageRef = useRef();
+  const { socket } = useContext(SocketContext);
   const handleContentSizeChange = () => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollToEnd({
@@ -53,20 +60,7 @@ export default function Chat1to1({ route, navigation }) {
     }
   };
 
-  /* LẮNG NGHE SOCKET */
   useListenMesages();
-  useListenDeleteMesages();
-
-  // const handleSelectFile = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({});
-  //     if (result.type === "success") {
-  //       setSelectedFile(result);
-  //     }
-  //   } catch (error) {
-  //     console.log("Error selecting file:", error);
-  //   }
-  // };
 
   const handleSelectImage = async () => {
     const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -94,34 +88,40 @@ export default function Chat1to1({ route, navigation }) {
         name: `${fileName}`,
       });
     }
-    const data = await useSendImages(token, participant._id, formData);
+    formData.append("conversationId", `${conversation._id}`);
+    const data = await useSendGroupChatImages(token, formData);
     LogBox.ignoreAllLogs();
     if (data.length == 0) {
       return;
     }
-    setMessages((messages) => [...messages, ...data]);
+    setMessages([...messages, ...data.resultMessage]);
     setSelectedImage(null);
   };
 
   const handleSend = async () => {
     if (message.length > 0) {
-      const data = await useSendMessage(token, participant._id, message);
-      setMessages([...messages, data.newMessage]);
+      const data = await useSendGroupChatMessage(
+        token,
+        conversation._id,
+        message
+      );
+      setMessages([...messages, data]);
       setMessage("");
-    } else {
-      console.log("No message or file selected.");
     }
   };
 
   const handleDelete = async () => {
-    const newMessages = await useDeleteMessage(
+    const newMessages = await useDeleteGroupChatMessage(
       messages,
-      user,
-      participant._id,
       token,
+      conversation._id,
       selectedMessage._id
     );
-    setMessages(newMessages);
+    if (!newMessages) {
+      setMessages([]);
+    } else {
+      setMessages(newMessages);
+    }
     setShowModal(false);
   };
 
@@ -133,6 +133,13 @@ export default function Chat1to1({ route, navigation }) {
     );
     await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
     setShowModal(false);
+  };
+
+  const handleCloseGroupChat = async () => {
+    const data = await useCloseGroupChat(token, conversation._id);
+    if (data) {
+      setIsRetired(true);
+    }
   };
 
   const saveToPhone = async (uri, filename, mimetype) => {
@@ -163,13 +170,19 @@ export default function Chat1to1({ route, navigation }) {
   };
 
   useEffect(() => {
-    const getMessage = async () => {
+    const getMessages = async () => {
       setIsLoading(true);
-      const data = await useFetchMessages(token, participant._id);
-      setMessages(data);
+      const data = await useFetchGroupChatMessages(token, conversation._id);
+      if (data.length == 0) {
+        setMessages([]);
+      } else {
+        setMessages(data);
+      }
       setIsLoading(false);
     };
-    getMessage();
+
+    socket.emit("join", conversation._id);
+    getMessages();
   }, []);
 
   return (
@@ -205,7 +218,7 @@ export default function Chat1to1({ route, navigation }) {
       </Modal>
 
       {/* ---------- CHAT HEADER ---------- */}
-      <ChatHeader participant={participant} />
+      <ChatGroupHeader conversation={conversation} />
 
       {/* ---------- MESSAGES CONTAINER ---------- */}
       <View style={styles.container}>
@@ -214,28 +227,29 @@ export default function Chat1to1({ route, navigation }) {
             ref={lastMessageRef}
             onContentSizeChange={handleContentSizeChange}
           >
-            {messages.map((item) => {
-              if (item.senderId !== user._id.toString()) {
-                return (
-                  <ChatReceiver
-                    key={item._id}
-                    item={item}
-                    setShowModal={setShowModal}
-                    setSelectedMessage={setSelectedMessage}
-                    participant={participant}
-                  />
-                );
-              } else {
-                return (
-                  <ChatSender
-                    key={item._id}
-                    item={item}
-                    setShowModal={setShowModal}
-                    setSelectedMessage={setSelectedMessage}
-                  />
-                );
-              }
-            })}
+            {messages.length > 0 &&
+              messages.map((item) => {
+                if (item.senderId !== user._id.toString()) {
+                  return (
+                    <ChatReceiver
+                      key={item._id}
+                      item={item}
+                      setShowModal={setShowModal}
+                      setSelectedMessage={setSelectedMessage}
+                      participants={conversation.participants}
+                    />
+                  );
+                } else {
+                  return (
+                    <ChatSender
+                      key={item._id}
+                      item={item}
+                      setShowModal={setShowModal}
+                      setSelectedMessage={setSelectedMessage}
+                    />
+                  );
+                }
+              })}
           </ScrollView>
         ) : (
           <View
@@ -250,44 +264,53 @@ export default function Chat1to1({ route, navigation }) {
         )}
 
         {/* ---------- MESSAGE INPUT ---------- */}
-        <View style={styles.messageInputContainer}>
-          <Pressable>
-            <Ionicons
-              name="attach"
-              size={24}
-              color={Colors.primary}
-              style={styles.optionButtonIcon}
-            />
-          </Pressable>
+        {isRetired ? (
+          <View style={styles.retiredTextContainer}>
+            <Text style={styles.retiredText}>
+              This conversation has been closed, You are no longer able to send
+              or receive messages
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.messageInputContainer}>
+            <Pressable>
+              <Ionicons
+                name="attach"
+                size={24}
+                color={Colors.primary}
+                style={styles.optionButtonIcon}
+              />
+            </Pressable>
 
-          {/* ---------- SELECT IMAGE BTN ---------- */}
-          <Pressable onPress={handleSelectImage}>
-            <Ionicons
-              name="image-outline"
-              size={24}
-              color={Colors.primary}
-              style={styles.optionButtonIcon}
-            />
-          </Pressable>
+            {/* ---------- SELECT IMAGE BTN ---------- */}
+            <Pressable onPress={handleSelectImage}>
+              <Ionicons
+                name="image-outline"
+                size={24}
+                color={Colors.primary}
+                style={styles.optionButtonIcon}
+              />
+            </Pressable>
 
-          {/* ---------- INPUT ---------- */}
-          <TextInput
-            placeholder="Tin nhắn..."
-            style={styles.messageInput}
-            value={message}
-            onChangeText={(text) => setMessage(text)}
-          />
-
-          {/* ---------- SEND MSG BUTTON ---------- */}
-          <Pressable style={styles.sendButton} onPress={handleSend}>
-            <Ionicons
-              name="send"
-              size={22}
-              color={Colors.primary}
-              style={styles.sendButtonIcon}
+            {/* ---------- INPUT ---------- */}
+            <TextInput
+              placeholder="Tin nhắn..."
+              style={styles.messageInput}
+              value={message}
+              onChangeText={(text) => setMessage(text)}
             />
-          </Pressable>
-        </View>
+
+            {/* ---------- SEND MSG BUTTON ---------- */}
+            <Pressable style={styles.sendButton} onPress={handleSend}>
+              <Ionicons
+                name="send"
+                size={22}
+                color={Colors.primary}
+                style={styles.sendButtonIcon}
+              />
+            </Pressable>
+          </View>
+        )}
 
         {/* Hiển thị hình ảnh đã chọn */}
         {selectedImage && (
@@ -318,7 +341,7 @@ export default function Chat1to1({ route, navigation }) {
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const ModalBtn = (props) => {
   return (
@@ -394,6 +417,18 @@ const styles = StyleSheet.create({
     fontFamily: "medium",
     fontSize: FontSize.medium,
   },
+  retiredTextContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.white,
+    paddingVertical: 25,
+  },
+  retiredText: {
+    textAlign: "center",
+    marginHorizontal: 40,
+    fontFamily: "medium",
+    fontSize: FontSize.regular,
+  },
   messageInputContainer: {
     width: "100%",
     flexDirection: "row",
@@ -404,6 +439,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 12,
     backgroundColor: "white",
+    marginTop: 15,
   },
   messageInput: {
     flex: 1,

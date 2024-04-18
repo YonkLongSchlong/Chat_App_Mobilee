@@ -1,17 +1,18 @@
 import { ToastAndroid } from "react-native";
 
-export default useSendMessages = async (token, receiverId, message) => {
+export default useShareMessages = async (token, receiverId, messageId) => {
+  console.log(receiverId, messageId);
   try {
     const response = await fetch(
-      process.env.EXPO_PUBLIC_BASE_URL + `/messages/send/${receiverId}`,
+      process.env.EXPO_PUBLIC_BASE_URL + `/messages/share/${receiverId}`,
       {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        method: "POST",
         body: JSON.stringify({
-          message,
+          messageId,
         }),
       }
     );
