@@ -31,7 +31,7 @@ export const ChatGroupHeader = ({ conversation }) => {
         <View style={styles.headerView}>
           <Pressable
             style={styles.backBtnContainer}
-            onPress={() => navigation.popToTop()}
+            onPress={() => navigative.popToTop()}
           >
             <Ionicons name="arrow-back" size={24} color={Colors.black} />
           </Pressable>

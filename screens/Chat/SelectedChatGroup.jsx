@@ -126,9 +126,10 @@ const SelectChatGroup = () => {
         const newConversationId = responseData.conversationId; // lưu conversationId vào state
         // Xử lý phản hồi từ máy chủ nếu cần
         navigation.navigate("ChatGroup", {
-          groupName: groupName,
-          selectedFriends: selectedFriends,
-          conversationId: newConversationId,
+          conversation: responseData,
+          // groupName: groupName,
+          // selectedFriends: selectedFriends,
+          // conversationId: newConversationId,
         });
       } catch (error) {
         console.log("Error creating group:", error.message);

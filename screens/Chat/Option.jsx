@@ -18,7 +18,7 @@ const Option = ({ route }) => {
   };
 
   const handleViewMembers = () => {
-    // Xử lý khi nhấn nút Xem danh sách thành viên nhóm
+    navigation.navigate("ListMembers", { conversation });
   };
 
   
@@ -26,9 +26,6 @@ const Option = ({ route }) => {
     // try {
       const result = await useCloseGroupChat(token, conversation._id); 
       console.log("Group disbanded successfully:", result);
-    // } catch (error) {
-    //   ToastAndroid.show(error.message, ToastAndroid.SHORT);
-    // }
   };
 
   return (
