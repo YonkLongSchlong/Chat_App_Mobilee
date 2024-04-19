@@ -15,8 +15,7 @@ export default function ConversationCard({ convers }) {
   const { user, token } = useContext(AuthContext);
   const lastMessage = conversation.messages[conversation.messages.length - 1];
   const check = lastMessage?.messageType == "image" ? true : false;
-  const route =
-    conversation.participants.length <= 2 ? "Chat1to1" : "ChatGroup";
+  const route = conversation.status === undefined ? "Chat1to1" : "ChatGroup";
   let participant = {};
   conversation.participants.forEach((userToChat) => {
     if (userToChat._id != user._id) {
@@ -68,7 +67,7 @@ export default function ConversationCard({ convers }) {
               {/* USERNAME */}
               <View>
                 <Text style={styles.usernameText}>
-                  {conversation.participants.length > 2
+                  {conversation.status !== undefined
                     ? conversation.name
                     : participant?.username}
                 </Text>

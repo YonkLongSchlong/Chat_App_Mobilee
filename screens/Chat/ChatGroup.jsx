@@ -37,6 +37,9 @@ import {
 import { SocketContext } from "../../context/SocketContext";
 import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
 import { useListenDeleteMesages } from "../../hooks/ListenSocket/useListenDeleteMessage";
+import { useListenUpdateGroupChat } from "../../hooks/ListenSocket/useListenUpdateGroupChat";
+import useSendFile from "../../hooks/Messages/useSendFile";
+import useSendGroupChatFile from "../../hooks/ChatGroup/useSendGroupChatFile";
 
 export const ChatGroup = ({ route, navigation }) => {
   const { conversation } = route.params;
@@ -61,6 +64,37 @@ export const ChatGroup = ({ route, navigation }) => {
   };
 
   useListenMesages();
+  useListenUpdateGroupChat(messages, setMessages, conversation);
+
+  const handleSelectFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync();
+      if (!result.canceled) {
+        const files = result.assets;
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files[]", {
+            name: files[i].name.split(".")[0],
+            uri: files[i].uri,
+            type: files[i].mimeType,
+            size: files[i].size,
+          });
+        }
+        const data = await useSendGroupChatFile(
+          token,
+          conversation._id,
+          formData
+        );
+        LogBox.ignoreAllLogs();
+        if (data == undefined) {
+          return;
+        }
+        // setMessages((messages) => [...messages, ...data]);
+      }
+    } catch (error) {
+      console.log("Error selecting file:", error);
+    }
+  };
 
   const handleSelectImage = async () => {
     const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -126,9 +160,19 @@ export const ChatGroup = ({ route, navigation }) => {
   };
 
   const downLoadImage = async () => {
-    const fileName = selectedMessage.message.split("/").pop();
+    const fileName = selectedMessage.messageUrl.split("/").pop();
     const result = await FileSystem.downloadAsync(
-      selectedMessage.message,
+      selectedMessage.messageUrl,
+      FileSystem.documentDirectory + fileName
+    );
+    await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
+    setShowModal(false);
+  };
+
+  const downLoadFile = async () => {
+    const fileName = selectedMessage.message;
+    const result = await FileSystem.downloadAsync(
+      selectedMessage.messageUrl,
       FileSystem.documentDirectory + fileName
     );
     await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
@@ -143,7 +187,7 @@ export const ChatGroup = ({ route, navigation }) => {
   };
 
   const saveToPhone = async (uri, filename, mimetype) => {
-    if (Platform.OS === "android") {
+    if (Platform.OS == "android") {
       const permissions =
         await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
       if (permissions.granted) {
@@ -192,6 +236,7 @@ export const ChatGroup = ({ route, navigation }) => {
         <View style={styles.modal}>
           <View style={styles.modalBtnContainer}>
             <ModalBtn label="Download image" deleteMessage={downLoadImage} />
+            <ModalBtn label="Download file" deleteMessage={downLoadFile} />
             <ModalBtn
               label="Delete this message"
               deleteMessage={handleDelete}
@@ -273,7 +318,7 @@ export const ChatGroup = ({ route, navigation }) => {
           </View>
         ) : (
           <View style={styles.messageInputContainer}>
-            <Pressable>
+            <Pressable onPress={handleSelectFile}>
               <Ionicons
                 name="attach"
                 size={24}
@@ -375,7 +420,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: Dimensions.get("window").width,
-    height: 280,
+    height: 350,
     position: "absolute",
     bottom: 0,
     backgroundColor: Colors.white,

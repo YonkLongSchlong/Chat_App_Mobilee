@@ -34,6 +34,7 @@ import {
   useSendMessage,
 } from "../../hooks/Messages/index";
 import { LogBox } from "react-native";
+import useSendFile from "../../hooks/Messages/useSendFile";
 
 export default function Chat1to1({ route, navigation }) {
   const { participant } = route.params;
@@ -57,16 +58,32 @@ export default function Chat1to1({ route, navigation }) {
   useListenMesages();
   useListenDeleteMesages();
 
-  // const handleSelectFile = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({});
-  //     if (result.type === "success") {
-  //       setSelectedFile(result);
-  //     }
-  //   } catch (error) {
-  //     console.log("Error selecting file:", error);
-  //   }
-  // };
+  const handleSelectFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync();
+      if (!result.canceled) {
+        console.log(result);
+        const files = result.assets;
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files[]", {
+            name: files[i].name.split(".")[0],
+            uri: files[i].uri,
+            type: files[i].mimeType,
+            size: files[i].size,
+          });
+        }
+        const data = await useSendFile(token, participant._id, formData);
+        LogBox.ignoreAllLogs();
+        if (data.length == 0) {
+          return;
+        }
+        setMessages((messages) => [...messages, ...data]);
+      }
+    } catch (error) {
+      console.log("Error selecting file:", error);
+    }
+  };
 
   const handleSelectImage = async () => {
     const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -126,9 +143,19 @@ export default function Chat1to1({ route, navigation }) {
   };
 
   const downLoadImage = async () => {
-    const fileName = selectedMessage.message.split("/").pop();
+    const fileName = selectedMessage.messageUrl.split("/").pop();
     const result = await FileSystem.downloadAsync(
-      selectedMessage.message,
+      selectedMessage.messageUrl,
+      FileSystem.documentDirectory + fileName
+    );
+    await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
+    setShowModal(false);
+  };
+
+  const downLoadFile = async () => {
+    const fileName = selectedMessage.message;
+    const result = await FileSystem.downloadAsync(
+      selectedMessage.messageUrl,
       FileSystem.documentDirectory + fileName
     );
     await saveToPhone(result.uri, fileName, result.headers["Content-Type"]);
@@ -179,6 +206,7 @@ export default function Chat1to1({ route, navigation }) {
         <View style={styles.modal}>
           <View style={styles.modalBtnContainer}>
             <ModalBtn label="Download image" deleteMessage={downLoadImage} />
+            <ModalBtn label="Download file" deleteMessage={downLoadFile} />
             <ModalBtn
               label="Delete this message"
               deleteMessage={handleDelete}
@@ -251,7 +279,7 @@ export default function Chat1to1({ route, navigation }) {
 
         {/* ---------- MESSAGE INPUT ---------- */}
         <View style={styles.messageInputContainer}>
-          <Pressable>
+          <Pressable onPress={handleSelectFile}>
             <Ionicons
               name="attach"
               size={24}
@@ -352,7 +380,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: Dimensions.get("window").width,
-    height: 280,
+    height: 350,
     position: "absolute",
     bottom: 0,
     backgroundColor: Colors.white,

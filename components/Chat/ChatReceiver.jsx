@@ -2,6 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import FontSize from "../../constants/FontSize";
 import Colors from "../../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const ChatReceiver = ({
   item,
@@ -10,7 +11,7 @@ const ChatReceiver = ({
   participants,
   participant,
 }) => {
-  const isImage = item.messageType === "image" ? true : false;
+  const messageType = item.messageType;
   const formatTime = (time) => {
     const options = { hour: "numeric", minute: "numeric" };
     return new Date(time).toLocaleString("en-US", options);
@@ -36,25 +37,41 @@ const ChatReceiver = ({
         <Image
           style={styles.userAvatar}
           source={{
-            uri: `${user.avatar}`,
+            uri: `${
+              user.avatar == undefined
+                ? "https://st4.depositphotos.com/4329009/19956/v/450/depositphotos_199564354-stock-illustration-creative-vector-illustration-default-avatar.jpg"
+                : user.avatar
+            }`,
           }}
         />
       </View>
       <View style={styles.messageContainer}>
         <View style={styles.messageBubble}>
           <View style={styles.usernameContainer}>
-            <Text style={styles.username}>{user.username}</Text>
+            <Text style={styles.username}>
+              {user.username == undefined ? "removed user" : user.username}
+            </Text>
           </View>
-          {isImage ? (
+          {messageType == "image" ? (
             <>
               <Image source={{ uri: item.messageUrl }} style={styles.image} />
               <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
             </>
-          ) : (
+          ) : messageType == "text" ? (
             <>
               <Text style={styles.messageText}>{item.message}</Text>
               <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
             </>
+          ) : (
+            <View style={styles.messageFileContainer}>
+              <View>
+                <Text style={styles.messageTextFile}>{item.message}</Text>
+                <Text style={styles.timeText}>
+                  {formatTime(item.createdAt)}
+                </Text>
+              </View>
+              <Ionicons name="document" size={22} color={Colors.black} />
+            </View>
           )}
         </View>
       </View>
@@ -110,10 +127,21 @@ const styles = StyleSheet.create({
     fontSize: FontSize.small,
     color: Colors.dark_gray,
   },
+  messageTextFile: {
+    fontSize: FontSize.regular,
+    color: Colors.black,
+    lineHeight: 20,
+    fontFamily: "regular",
+    marginBottom: 10,
+  },
   image: {
     width: 220,
     height: 220,
     borderRadius: 10,
+  },
+  messageFileContainer: {
+    flexDirection: "row",
+    gap: 10,
   },
 });
 

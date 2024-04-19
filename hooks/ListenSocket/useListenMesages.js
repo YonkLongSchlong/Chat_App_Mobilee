@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/SocketContext";
 import { MessagesContext } from "../../context/MessagesContext";
+import { useNavigation } from "@react-navigation/native";
 
 export const useListenMesages = () => {
   const { socket } = useContext(SocketContext);
@@ -8,6 +9,7 @@ export const useListenMesages = () => {
 
   useEffect(() => {
     socket?.on("newMessage", (newMessage) => {
+      console.log(newMessage);
       if (Array.isArray(newMessage)) {
         setMessages((messages) => [...messages, ...newMessage]);
       } else {
