@@ -23,6 +23,7 @@ const SelectChatGroup = () => {
   const [friends, setFriends] = useState([]);
   const { user, token } = useContext(AuthContext);
   const [searchText, setSearchText] = useState("");
+  const [conversationId, setConversationId] = useState("");
   const [error, setError] = useState("");
   const navigation = useNavigation();
 
@@ -122,10 +123,13 @@ const SelectChatGroup = () => {
         );
         console.log(response.json);
         const responseData = await response.json();
+        const newConversationId = responseData.conversationId; // lưu conversationId vào state
         // Xử lý phản hồi từ máy chủ nếu cần
         navigation.navigate("ChatGroup", {
-          groupName: groupName,
-          selectedFriends: selectedFriends,
+          conversation: responseData,
+          // groupName: groupName,
+          // selectedFriends: selectedFriends,
+          // conversationId: newConversationId,
         });
       } catch (error) {
         console.log("Error creating group:", error.message);

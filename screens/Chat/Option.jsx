@@ -1,18 +1,31 @@
 import React from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from Expo
+import { Ionicons } from "@expo/vector-icons"; 
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
+import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat"; 
+import { useNavigation } from "@react-navigation/native";
 
-const Option = () => {
+const Option = ({ route }) => {
+  const navigation = useNavigation(); 
+
+  const { conversation } = route.params;
+  
+  const { user, token } = useContext(AuthContext);
+
   const handleAddMember = () => {
-    // Xử lý khi nhấn nút Thêm thành viên
+    navigation.navigate("AddFriendIntoGroup", { conversation })
   };
 
   const handleViewMembers = () => {
-    // Xử lý khi nhấn nút Xem danh sách thành viên nhóm
+    navigation.navigate("ListMembers", { conversation });
   };
 
-  const handleDisbandGroup = () => {
-    // Xử lý khi nhấn nút Giải tán nhóm
+  
+  const handleDisbandGroup = async () => {
+    // try {
+      const result = await useCloseGroupChat(token, conversation._id); 
+      console.log("Group disbanded successfully:", result);
   };
 
   return (
