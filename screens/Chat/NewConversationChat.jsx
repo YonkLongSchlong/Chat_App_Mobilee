@@ -33,6 +33,7 @@ import {
   useFetchMessages,
   useSendMessage,
 } from "../../hooks/Messages/index";
+import useSendFile from "../../hooks/Messages/useSendFile";
 
 export const NewConversationChat = ({ route, navigation }) => {
   const { friend } = route.params;
@@ -56,16 +57,32 @@ export const NewConversationChat = ({ route, navigation }) => {
   useListenMesages();
   useListenDeleteMesages();
 
-  // const handleSelectFile = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({});
-  //     if (result.type === "success") {
-  //       setSelectedFile(result);
-  //     }
-  //   } catch (error) {
-  //     console.log("Error selecting file:", error);
-  //   }
-  // };
+  const handleSelectFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync();
+      if (!result.canceled) {
+        console.log(result);
+        const files = result.assets;
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files[]", {
+            name: files[i].name.split(".")[0],
+            uri: files[i].uri,
+            type: files[i].mimeType,
+            size: files[i].size,
+          });
+        }
+        const data = await useSendFile(token, friend._id, formData);
+        LogBox.ignoreAllLogs();
+        if (data.length == 0) {
+          return;
+        }
+        setMessages((messages) => [...messages, ...data]);
+      }
+    } catch (error) {
+      console.log("Error selecting file:", error);
+    }
+  };
 
   const handleSelectImage = async () => {
     const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -180,11 +197,8 @@ export const NewConversationChat = ({ route, navigation }) => {
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <View style={styles.modal}>
           <View style={styles.modalBtnContainer}>
-            <ModalBtn
-              label="Download image"
-              deleteMessage={downLoadImage}
-              disable={true}
-            />
+            <ModalBtn label="Download file" deleteMessage={downLoadImage} />
+            <ModalBtn label="Download image" deleteMessage={downLoadImage} />
             <ModalBtn
               label="Delete this message"
               deleteMessage={handleDelete}
@@ -258,7 +272,7 @@ export const NewConversationChat = ({ route, navigation }) => {
 
         {/* ---------- MESSAGE INPUT ---------- */}
         <View style={styles.messageInputContainer}>
-          <Pressable>
+          <Pressable onPress={handleSelectFile}>
             <Ionicons
               name="attach"
               size={24}
@@ -358,7 +372,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: Dimensions.get("window").width,
-    height: 270,
+    height: 350,
     position: "absolute",
     bottom: 0,
     backgroundColor: Colors.white,

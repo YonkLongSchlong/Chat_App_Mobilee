@@ -11,6 +11,7 @@ export default useFetchConversations = async (user, token) => {
       }
     );
     const data = await response.json();
+    console.log(data);
     if (data.error) throw new Error(data, error);
     return data;
   } catch (error) {

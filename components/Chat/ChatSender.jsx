@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
+import { Ionicons } from "@expo/vector-icons";
 
 const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
   const messageType = item.messageType;
@@ -30,10 +31,13 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
             <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
           </>
         ) : (
-          <>
-            <Text style={styles.messageText}>{item.message}</Text>
-            <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
-          </>
+          <View style={styles.messageFileContainer}>
+            <Ionicons name="document" size={22} color={Colors.black} />
+            <View>
+              <Text style={styles.messageText}>{item.message}</Text>
+              <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
+            </View>
+          </View>
         )}
       </View>
     </Pressable>
@@ -66,6 +70,10 @@ const styles = StyleSheet.create({
     height: 220,
     resizeMode: "cover",
     borderRadius: 10,
+  },
+  messageFileContainer: {
+    flexDirection: "row",
+    gap: 10,
   },
 });
 
