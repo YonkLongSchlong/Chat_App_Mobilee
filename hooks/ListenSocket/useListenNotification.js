@@ -4,18 +4,18 @@ import useFetchConversation from "../Conversations/useFetchConversation";
 import { AuthContext } from "../../context/AuthContext";
 
 export const useListenNotification = (conversation, setConversation) => {
-  const { socket } = useContext(SocketContext);
-  const { user, token } = useContext(AuthContext);
+    const { socket } = useContext(SocketContext);
+    const { token } = useContext(AuthContext);
 
-  useEffect(() => {
-    socket?.on("notification", () => {
-      useFetchConversation(user, token, conversation._id)
-        .then((data) => {
-          setConversation(data);
-        })
-        .catch((error) => {
-          console.log(error.message);
+    useEffect(() => {
+        socket?.on("notification", () => {
+            useFetchConversation(token, conversation._id)
+                .then((data) => {
+                    setConversation(data);
+                })
+                .catch((error) => {
+                    console.log(error.message);
+                });
         });
-    });
-  }, [socket]);
+    }, [socket]);
 };

@@ -1,83 +1,119 @@
-import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from "react-native";
-import { useListMembersInGroup } from "../../hooks/ChatGroup/useListMemberInGroup";
-import { AuthContext } from "../../context/AuthContext";
-import { Delete } from "lucide-react-native";
-import useDeleteMemberOutGroup from "../../hooks/ChatGroup/useDeleteMemberOutGroup";
-import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useState } from "react";
+import {
+    FlatList,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Colors from "../../constants/Colors";
+import FontSize from "../../constants/FontSize";
+import { AuthContext } from "../../context/AuthContext";
+import useDeleteMemberOutGroup from "../../hooks/ChatGroup/useDeleteMemberOutGroup";
 
 const ListMembers = ({ route }) => {
     const { conversation } = route.params;
     const { token, user } = useContext(AuthContext);
-    const [members, setMembers] = useState([]);
+    const [members, setMembers] = useState(conversation.participants);
     const { deleteMember } = useDeleteMemberOutGroup();
     const [showConfirmation, setShowConfirmation] = useState(false);
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const fetchMembers = async () => {
-            try {
-                const data = await useListMembersInGroup(token, conversation._id);
-                setMembers(data);
-            } catch (error) {
-                console.error("Error fetching members:", error);
-            }
-        };
-
-        fetchMembers();
-    }, [token, conversation._id]);
-
     const handleDeleteMember = async (memberId) => {
-        console.log("Delete member with id:", memberId);
-        console.log("Current user id:", user._id);
         try {
             if (memberId !== user._id) {
                 await deleteMember(token, conversation._id, memberId);
                 navigation.goBack();
-            }
-            else{
+            } else {
                 setShowConfirmation(true);
             }
-            
         } catch (error) {
             console.error("Error deleting member:", error);
         }
     };
 
-    const closeAndDissolveGroup = async () => {
-        try {
-            await useCloseGroupChat(token, conversation._id);
-        } catch (error) {
-            console.error("Error closing group chat:", error);
-        }
-    };
-
     return (
-        <View style={styles.container}>
-            <FlatList
-                data={members}
-                renderItem={({ item }) => (
-                    <View style={styles.memberContainer}>
-                        <Text style={styles.memberName}>{item.username}</Text>
-                        <TouchableOpacity onPress={() => handleDeleteMember(item._id)}>
-                            <Delete size={24} color="black" />
-                        </TouchableOpacity>
+        <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
+            <View style={styles.container}>
+                <View style={styles.countContainer}>
+                    <Text style={styles.countText}>
+                        {members.length} members
+                    </Text>
+                </View>
+                <FlatList
+                    data={members}
+                    renderItem={({ item }) => (
+                        <UserCard
+                            item={item}
+                            setShowConfirmation={setShowConfirmation}
+                            conversation={conversation}
+                        />
+                    )}
+                    keyExtractor={(item) => item._id}
+                />
+
+                {showConfirmation && (
+                    <View style={styles.confirmationContainer}>
+                        <Pressable
+                            onPress={setShowConfirmation(false)}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </Pressable>
+                        <Pressable
+                            style={[styles.button, styles.buttonConfirm]}
+                        >
+                            <Text
+                                style={[
+                                    styles.buttonText,
+                                    styles.buttonTextConfirm,
+                                ]}
+                            >
+                                Remove this user
+                            </Text>
+                        </Pressable>
                     </View>
                 )}
-                keyExtractor={(item) => item._id}
-            />
+            </View>
+        </SafeAreaView>
+    );
+};
 
-            {showConfirmation && (
-                <View style={styles.confirmationContainer}>
-                    <TouchableOpacity onPress={() => setShowConfirmation(false)} style={styles.button}>
-                        <Text style={styles.buttonText}>Hủy</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={closeAndDissolveGroup} style={[styles.button, styles.buttonConfirm]}>
-                        <Text style={[styles.buttonText, styles.buttonTextConfirm]}>Giải tán nhóm</Text>
-                    </TouchableOpacity>
+const UserCard = ({ item, setShowConfirmation, conversation }) => {
+    return (
+        <View style={styles.memberContainer}>
+            <View style={styles.infoContainer}>
+                <Image
+                    style={styles.avatar}
+                    source={{
+                        uri: `${item.avatar}`,
+                    }}
+                />
+                <Text style={styles.memberName}>{item.username}</Text>
+            </View>
+
+            {conversation.status === 1 ? (
+                <View style={styles.iconContainer}>
+                    <Pressable onPress={() => setShowConfirmation(true)}>
+                        <Ionicons
+                            name="add-circle"
+                            size={22}
+                            color={Colors.primary}
+                        />
+                    </Pressable>
+                    <Pressable onPress={() => setShowConfirmation(true)}>
+                        <Ionicons
+                            name="close-circle"
+                            size={22}
+                            color={Colors.dark_gray}
+                        />
+                    </Pressable>
                 </View>
-            )}
+            ) : null}
         </View>
     );
 };
@@ -86,9 +122,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingTop: 20,
-        marginTop: 70,
+        marginTop: 60,
         borderTopColor: "#ccc",
+    },
+    countContainer: {
+        marginVertical: 10,
+    },
+    countText: {
+        fontSize: FontSize.small,
+        fontFamily: "semiBold",
+        color: Colors.dark_gray,
     },
     memberContainer: {
         flexDirection: "row",
@@ -98,8 +141,25 @@ const styles = StyleSheet.create({
         borderBottomColor: "#ccc",
         paddingVertical: 10,
     },
+    infoContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 15,
+    },
+    avatar: {
+        width: 45,
+        height: 45,
+        resizeMode: "cover",
+        borderRadius: 45,
+    },
     memberName: {
-        fontSize: 18,
+        fontSize: FontSize.regular,
+        fontFamily: "medium",
+    },
+    iconContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: 10,
     },
     confirmationContainer: {
         flexDirection: "row",

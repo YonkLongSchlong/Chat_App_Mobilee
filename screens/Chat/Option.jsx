@@ -1,83 +1,182 @@
-import React from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; 
-import { AuthContext } from "../../context/AuthContext";
-import { useContext } from "react";
-import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat"; 
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import React, { useContext } from "react";
+import {
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    ToastAndroid,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Colors from "../../constants/Colors";
+import FontSize from "../../constants/FontSize";
+import { AuthContext } from "../../context/AuthContext";
+import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat";
 
 const Option = ({ route }) => {
-  const navigation = useNavigation(); 
+    const navigation = useNavigation();
+    const { conversation } = route.params;
+    const { token } = useContext(AuthContext);
 
-  const { conversation } = route.params;
-  
-  const { user, token } = useContext(AuthContext);
+    return (
+        <SafeAreaView
+            style={{ flex: 1, paddingTop: 80, backgroundColor: Colors.white }}
+        >
+            <View style={styles.container}>
+                <View style={styles.avartarContainer}>
+                    <Pressable
+                        style={styles.iconBtn}
+                        onPress={() => pickImage()}
+                    >
+                        <Image
+                            source={{ uri: conversation.conversationImage }}
+                            style={{
+                                width: 100,
+                                height: 100,
+                                borderWidth: 0,
+                                borderRadius: 75,
+                            }}
+                        />
+                    </Pressable>
+                </View>
+                <View style={styles.utilityBtnContainer}>
+                    <UtilityBtn
+                        label={"Add members"}
+                        navigation={navigation}
+                        icon={"person-add"}
+                        route={"AddFriendIntoGroup"}
+                        conversation={conversation}
+                    />
+                    <UtilityBtn
+                        label={"See members"}
+                        navigation={navigation}
+                        icon={"people"}
+                        route={"ListMembers"}
+                        conversation={conversation}
+                    />
+                    <DisolveBtn
+                        label={"Disolve group"}
+                        icon={"exit"}
+                        token={token}
+                        conversation={conversation}
+                    />
+                </View>
+            </View>
+        </SafeAreaView>
+    );
+};
 
-  const handleAddMember = () => {
-    navigation.navigate("AddFriendIntoGroup", { conversation })
-  };
+const UtilityBtn = (props) => {
+    const conversation = props.conversation;
+    return (
+        <>
+            <Pressable
+                style={styles.utilityBtn}
+                onPress={() => {
+                    if (
+                        props.label !== "See members" &&
+                        conversation.status === 2
+                    ) {
+                        ToastAndroid.show(
+                            "This group have been disolved",
+                            ToastAndroid.SHORT
+                        );
+                    } else {
+                        props.navigation.navigate(props.route, {
+                            conversation,
+                        });
+                    }
+                }}
+            >
+                <Ionicons
+                    name={props.icon}
+                    size={22}
+                    color="white"
+                    style={styles.icon}
+                />
+                <Text style={styles.buttonText}>{props.label}</Text>
+            </Pressable>
+            <View style={styles.separator}></View>
+        </>
+    );
+};
 
-  const handleViewMembers = () => {
-    navigation.navigate("ListMembers", { conversation });
-  };
-
-  
-  const handleDisbandGroup = async () => {
-    // try {
-      const result = await useCloseGroupChat(token, conversation._id); 
-      console.log("Group disbanded successfully:", result);
-  };
-
-  return (
-    <View style={styles.container}>
-      {/* Button "Thêm thành viên" */}
-      <Pressable style={styles.button} onPress={handleAddMember}>
-        <Ionicons
-          name="person-add"
-          size={24}
-          color="white"
-          style={styles.icon}
-        />
-        <Text style={styles.buttonText}>Thêm thành viên</Text>
-      </Pressable>
-
-      {/* Button "Xem danh sách thành viên nhóm" */}
-      <Pressable style={styles.button} onPress={handleViewMembers}>
-        <Ionicons name="people" size={24} color="white" style={styles.icon} />
-        <Text style={styles.buttonText}>Xem danh sách thành viên nhóm</Text>
-      </Pressable>
-
-      {/* Button "Giải tán nhóm" */}
-      <Pressable style={styles.button} onPress={handleDisbandGroup}>
-        <Ionicons name="exit" size={24} color="white" style={styles.icon} />
-        <Text style={styles.buttonText}>Giải tán nhóm</Text>
-      </Pressable>
-    </View>
-  );
+const DisolveBtn = (props) => {
+    const handleDisbandGroup = async () => {
+        const response = await useCloseGroupChat(
+            props.token,
+            props.conversation._id
+        );
+        if (response.status === 200) {
+            ToastAndroid.show(
+                "Group disolved successfully",
+                ToastAndroid.SHORT
+            );
+        }
+    };
+    return (
+        <Pressable style={styles.utilityBtn} onPress={handleDisbandGroup}>
+            <Ionicons
+                name={props.icon}
+                size={22}
+                color="white"
+                style={styles.icon}
+            />
+            <Text style={styles.buttonText}>{props.label}</Text>
+        </Pressable>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button: {
-    flexDirection: "row", // Chia layout theo hàng ngang
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    alignItems: "center", // Canh chỉnh văn bản và icon theo chiều dọc
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    marginLeft: 10, // Khoảng cách giữa icon và văn bản
-  },
-  icon: {
-    marginRight: 10, // Khoảng cách giữa icon và văn bản
-  },
+    container: {
+        flex: 1,
+        alignItems: "center",
+    },
+    avartarContainer: {
+        width: 120,
+        height: 120,
+        backgroundColor: Colors.white,
+        marginBottom: 10,
+        borderRadius: 75,
+        borderWidth: 5,
+        borderColor: "#ECECED",
+        alignItems: "center",
+        justifyContent: "center",
+        resizeMode: "cover",
+    },
+    utilityBtnContainer: {
+        backgroundColor: Colors.primary,
+        alignItems: "flex-start",
+        width: "90%",
+        paddingHorizontal: 20,
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+    },
+    utilityBtn: {
+        alignItems: "center",
+        padding: 5,
+        borderRadius: 5,
+        flexDirection: "row",
+        gap: 5,
+    },
+    separator: {
+        height: 1,
+        width: "100%",
+        backgroundColor: Colors.white,
+        marginVertical: 10,
+    },
+    buttonText: {
+        color: "white",
+        fontSize: FontSize.regular,
+        marginLeft: 10,
+        fontFamily: "medium",
+    },
+    icon: {
+        marginRight: 10,
+    },
 });
 
 export default Option;
