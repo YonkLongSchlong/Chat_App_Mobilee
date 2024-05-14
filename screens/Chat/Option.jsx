@@ -13,11 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
+import { ConversationContext } from "../../context/ConversationContext";
 import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat";
 
-const Option = ({ route }) => {
+const Option = () => {
     const navigation = useNavigation();
-    const { conversation } = route.params;
+    const { conversation, setConversation } = useContext(ConversationContext);
     const { token } = useContext(AuthContext);
 
     return (
@@ -84,9 +85,7 @@ const UtilityBtn = (props) => {
                             ToastAndroid.SHORT
                         );
                     } else {
-                        props.navigation.navigate(props.route, {
-                            conversation,
-                        });
+                        props.navigation.navigate(props.route);
                     }
                 }}
             >
@@ -116,6 +115,7 @@ const DisolveBtn = (props) => {
             );
         }
     };
+
     return (
         <Pressable style={styles.utilityBtn} onPress={handleDisbandGroup}>
             <Ionicons

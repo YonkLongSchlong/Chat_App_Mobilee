@@ -5,7 +5,6 @@ export const ConversationsContext = createContext();
 export const ConversationsProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [conversations, setConversations] = useState([]);
-    const [conversation, setConversation] = useState({});
 
     return (
         <ConversationsContext.Provider
@@ -14,8 +13,6 @@ export const ConversationsProvider = ({ children }) => {
                 conversations,
                 setConversations,
                 setIsLoading,
-                conversation,
-                setConversation,
             }}
         >
             {children}

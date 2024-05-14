@@ -31,6 +31,7 @@ export default function Dashboard() {
     useListenConversations();
     useListenAcceptRequest();
 
+    console.log("Render dashboard");
     useEffect(() => {
         const getConversations = async () => {
             setIsLoading(true);

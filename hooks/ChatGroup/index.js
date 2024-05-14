@@ -1,25 +1,27 @@
-import { useSendGroupChatMessage } from "../../hooks/ChatGroup/useSendGroupChatMessage";
-import { useSendGroupChatImages } from "../../hooks/ChatGroup/useSendGroupChatImages";
-import useShareGroupChatMessage from "./useShareGroupChatMessage";
 import { useDeleteGroupChatMessage } from "../../hooks/ChatGroup/useDeleteGroupChatMesseage";
 import { useFetchGroupChatMessages } from "../../hooks/ChatGroup/useFetchGroupChatMessages";
-import { useCloseGroupChat } from "./useCloseGroupChat";
+import { useSendGroupChatImages } from "../../hooks/ChatGroup/useSendGroupChatImages";
+import { useSendGroupChatMessage } from "../../hooks/ChatGroup/useSendGroupChatMessage";
 import useAddFriendToGroup from "./useAddFriendGroup";
-import useDeleteMemberOutGroup from "./useDeleteMemberOutGroup";
-import { useListMembersInGroup } from "./useListMemberInGroup";
+import { useAddPermission } from "./useAddPermission";
+import { useCloseGroupChat } from "./useCloseGroupChat";
 import { useCreateGroupChat } from "./useFetchCreateGroup";
+import { useListMembersInGroup } from "./useListMemberInGroup";
+import { useRemoveParticipant } from "./useRemoveParticipant";
 import useSendGroupChatFile from "./useSendGroupChatFile";
+import useShareGroupChatMessage from "./useShareGroupChatMessage";
 
 export {
-    useSendGroupChatMessage,
-    useSendGroupChatImages,
+    useAddFriendToGroup,
+    useAddPermission,
+    useCloseGroupChat,
+    useCreateGroupChat,
     useDeleteGroupChatMessage,
     useFetchGroupChatMessages,
-    useCloseGroupChat,
-    useShareGroupChatMessage,
-    useAddFriendToGroup,
-    useDeleteMemberOutGroup,
     useListMembersInGroup,
-    useCreateGroupChat,
+    useRemoveParticipant,
     useSendGroupChatFile,
+    useSendGroupChatImages,
+    useSendGroupChatMessage,
+    useShareGroupChatMessage,
 };

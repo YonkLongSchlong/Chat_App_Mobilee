@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import { SocketContext } from "../../context/SocketContext";
 import useFetchConversation from "../Conversations/useFetchConversation";
-import { AuthContext } from "../../context/AuthContext";
 
 export const useListenNotification = (conversation, setConversation) => {
     const { socket } = useContext(SocketContext);

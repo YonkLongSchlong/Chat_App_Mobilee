@@ -25,52 +25,56 @@ export const ChatGroupHeader = ({ conversation }) => {
                 justifyContent: "center",
             }}
         >
-            <View style={styles.container}>
-                {/* ---------- CONVERSATION NAME CONTAINER ---------- */}
-                <View style={styles.headerView}>
-                    <Pressable
-                        style={styles.backBtnContainer}
-                        onPress={() => navigative.popToTop()}
-                    >
-                        <Ionicons
-                            name="arrow-back"
-                            size={24}
-                            color={Colors.black}
-                        />
-                    </Pressable>
-                    <View style={styles.avartaContainer}>
-                        <Image
-                            style={{
-                                height: 45,
-                                width: 45,
-                                resizeMode: "cover",
-                            }}
-                            source={{
-                                uri: `${conversation.conversationImage}`,
-                            }}
-                        />
+            {conversation && (
+                <View style={styles.container}>
+                    {/* ---------- CONVERSATION NAME CONTAINER ---------- */}
+                    <View style={styles.headerView}>
+                        <Pressable
+                            style={styles.backBtnContainer}
+                            onPress={() => navigative.popToTop()}
+                        >
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color={Colors.black}
+                            />
+                        </Pressable>
+                        <View style={styles.avartaContainer}>
+                            <Image
+                                style={{
+                                    height: 45,
+                                    width: 45,
+                                    resizeMode: "cover",
+                                }}
+                                source={{
+                                    uri: `${conversation.conversationImage}`,
+                                }}
+                            />
+                        </View>
+                        <Text style={styles.headerText}>
+                            {conversation.name}
+                        </Text>
                     </View>
-                    <Text style={styles.headerText}>{conversation.name}</Text>
-                </View>
 
-                {/* ---------- ICON CONTAINER ---------- */}
-                <View style={styles.iconContainer}>
-                    <Pressable>
-                        <Ionicons
-                            name="videocam-outline"
-                            size={22}
-                            color={Colors.primary}
-                        />
-                    </Pressable>
-                    <Pressable onPress={handlePressOption}>
-                        <Ionicons
-                            name="grid-outline"
-                            size={22}
-                            color={Colors.primary}
-                        />
-                    </Pressable>
+                    {/* ---------- ICON CONTAINER ---------- */}
+                    <View style={styles.iconContainer}>
+                        <Pressable>
+                            <Ionicons
+                                name="videocam-outline"
+                                size={22}
+                                color={Colors.primary}
+                            />
+                        </Pressable>
+                        <Pressable onPress={handlePressOption}>
+                            <Ionicons
+                                name="grid-outline"
+                                size={22}
+                                color={Colors.primary}
+                            />
+                        </Pressable>
+                    </View>
                 </View>
-            </View>
+            )}
         </SafeAreaView>
     );
 };

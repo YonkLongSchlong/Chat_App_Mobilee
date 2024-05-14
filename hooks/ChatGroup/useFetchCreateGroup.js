@@ -21,7 +21,6 @@ export const useCreateGroupChat = async (
         );
         const data = await response.json();
         if (data.error) throw new Error(data, error);
-        return data;
     } catch (error) {
         console.log({ Error: "Create group fail", msg: error.message });
     }

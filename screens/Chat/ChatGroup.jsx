@@ -26,9 +26,9 @@ import ChatSender from "../../components/Chat/ChatSender";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
+import { ConversationContext } from "../../context/ConversationContext";
 import { MessagesContext } from "../../context/MessagesContext";
 import {
-    useCloseGroupChat,
     useDeleteGroupChatMessage,
     useFetchGroupChatMessages,
     useSendGroupChatImages,
@@ -41,10 +41,8 @@ import { useListenUpdateGroupChat } from "../../hooks/ListenSocket/useListenUpda
 export const ChatGroup = ({ route, navigation }) => {
     const { convers } = route.params;
     const { messages, setMessages } = useContext(MessagesContext);
-    const [conversation, setConversation] = useState(convers);
-    const [isRetired, setIsRetired] = useState(
-        conversation.status == 2 ? true : false
-    );
+    const { conversation, setConversation } = useContext(ConversationContext);
+    const [isRetired, setIsRetired] = useState(false);
     const [message, setMessage] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -59,9 +57,6 @@ export const ChatGroup = ({ route, navigation }) => {
             });
         }
     };
-
-    useListenMesages();
-    useListenUpdateGroupChat(messages, setMessages, conversation);
 
     const handleSelectFile = async () => {
         try {
@@ -164,13 +159,6 @@ export const ChatGroup = ({ route, navigation }) => {
         setShowModal(false);
     };
 
-    const handleCloseGroupChat = async () => {
-        const data = await useCloseGroupChat(token, conversation._id);
-        if (data) {
-            setIsRetired(true);
-        }
-    };
-
     const saveToPhone = async (uri, filename, mimetype) => {
         if (Platform.OS == "android") {
             const permissions =
@@ -200,19 +188,16 @@ export const ChatGroup = ({ route, navigation }) => {
         }
     };
 
-    console.log("render");
+    console.log("Render chat group");
     useEffect(() => {
         const getMessages = async () => {
             setIsLoading(true);
-            const data = await useFetchGroupChatMessages(
-                token,
-                conversation._id
-            );
+            setConversation(convers);
+            convers.status == 2 ? setIsRetired(true) : setIsRetired(false);
+            const data = await useFetchGroupChatMessages(token, convers._id);
             if (data === undefined) {
                 navigation.goBack();
                 return;
-            } else if (data.length == 0) {
-                setMessages([]);
             } else {
                 setMessages(data);
             }
@@ -220,6 +205,9 @@ export const ChatGroup = ({ route, navigation }) => {
         };
         getMessages();
     }, []);
+
+    useListenMesages();
+    useListenUpdateGroupChat(convers, setConversation);
 
     return (
         <SafeAreaView style={styles.safeAreaView}>

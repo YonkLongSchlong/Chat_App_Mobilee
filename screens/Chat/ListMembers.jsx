@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
+    Dimensions,
     FlatList,
     Image,
+    Modal,
     Pressable,
     StyleSheet,
     Text,
@@ -13,28 +14,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
-import useDeleteMemberOutGroup from "../../hooks/ChatGroup/useDeleteMemberOutGroup";
+import { ConversationContext } from "../../context/ConversationContext";
+import { useAddPermission, useRemoveParticipant } from "../../hooks/ChatGroup";
 
-const ListMembers = ({ route }) => {
-    const { conversation } = route.params;
-    const { token, user } = useContext(AuthContext);
-    const [members, setMembers] = useState(conversation.participants);
-    const { deleteMember } = useDeleteMemberOutGroup();
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const navigation = useNavigation();
+export default ListMembers = () => {
+    const { conversation, setConversation } = useContext(ConversationContext);
+    const { token } = useContext(AuthContext);
+    const [members, setMembers] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [options, setOptions] = useState("");
+    const [selectedUser, setSelectedUser] = useState({});
 
-    const handleDeleteMember = async (memberId) => {
-        try {
-            if (memberId !== user._id) {
-                await deleteMember(token, conversation._id, memberId);
-                navigation.goBack();
-            } else {
-                setShowConfirmation(true);
-            }
-        } catch (error) {
-            console.error("Error deleting member:", error);
-        }
-    };
+    console.log("Render List members");
+    useEffect(() => {
+        setMembers(conversation.participants);
+    }, [conversation]);
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
@@ -46,44 +40,52 @@ const ListMembers = ({ route }) => {
                 </View>
                 <FlatList
                     data={members}
+                    keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
                         <UserCard
                             item={item}
-                            setShowConfirmation={setShowConfirmation}
+                            setShowModal={setShowModal}
                             conversation={conversation}
+                            setOptions={setOptions}
+                            setSelectedUser={setSelectedUser}
                         />
                     )}
-                    keyExtractor={(item) => item._id}
                 />
 
-                {showConfirmation && (
-                    <View style={styles.confirmationContainer}>
-                        <Pressable
-                            onPress={setShowConfirmation(false)}
-                            style={styles.button}
-                        >
-                            <Text style={styles.buttonText}>Cancel</Text>
-                        </Pressable>
-                        <Pressable
-                            style={[styles.button, styles.buttonConfirm]}
-                        >
-                            <Text
-                                style={[
-                                    styles.buttonText,
-                                    styles.buttonTextConfirm,
-                                ]}
-                            >
-                                Remove this user
-                            </Text>
-                        </Pressable>
-                    </View>
-                )}
+                <ConfirmationModal
+                    showModal={showModal}
+                    setShowModal={setShowModal}
+                    options={options}
+                    conversation={conversation}
+                    setConversation={setConversation}
+                    token={token}
+                    selectedUser={selectedUser}
+                    setSelectedUser={setSelectedUser}
+                />
             </View>
         </SafeAreaView>
     );
 };
 
-const UserCard = ({ item, setShowConfirmation, conversation }) => {
+const UserCard = ({
+    item,
+    setShowModal,
+    conversation,
+    setOptions,
+    setSelectedUser,
+}) => {
+    const handleBtnAddPermission = () => {
+        setShowModal(true);
+        setOptions("admin");
+        setSelectedUser(item);
+    };
+
+    const handleBtnRemoveUser = () => {
+        setShowModal(true);
+        setOptions("remove");
+        setSelectedUser(item);
+    };
+
     return (
         <View style={styles.memberContainer}>
             <View style={styles.infoContainer}>
@@ -93,19 +95,24 @@ const UserCard = ({ item, setShowConfirmation, conversation }) => {
                         uri: `${item.avatar}`,
                     }}
                 />
-                <Text style={styles.memberName}>{item.username}</Text>
+                <View style={styles.usernameContainer}>
+                    <Text style={styles.memberName}>{item.username}</Text>
+                    {conversation.admin.includes(item._id) ? (
+                        <Text style={styles.roleText}>Admin</Text>
+                    ) : null}
+                </View>
             </View>
 
             {conversation.status === 1 ? (
                 <View style={styles.iconContainer}>
-                    <Pressable onPress={() => setShowConfirmation(true)}>
+                    <Pressable onPress={() => handleBtnAddPermission()}>
                         <Ionicons
                             name="add-circle"
                             size={22}
                             color={Colors.primary}
                         />
                     </Pressable>
-                    <Pressable onPress={() => setShowConfirmation(true)}>
+                    <Pressable onPress={() => handleBtnRemoveUser()}>
                         <Ionicons
                             name="close-circle"
                             size={22}
@@ -115,6 +122,82 @@ const UserCard = ({ item, setShowConfirmation, conversation }) => {
                 </View>
             ) : null}
         </View>
+    );
+};
+
+const ConfirmationModal = ({
+    showModal,
+    setShowModal,
+    options,
+    conversation,
+    setConversation,
+    token,
+    selectedUser,
+    setSelectedUser,
+}) => {
+    const handleAddPermission = async () => {
+        const data = await useAddPermission(
+            token,
+            conversation._id,
+            selectedUser._id
+        );
+        if (data) {
+            setConversation(data);
+        }
+        setSelectedUser(null);
+        setShowModal(false);
+    };
+
+    const handleRemoveUser = async () => {
+        const data = await useRemoveParticipant(
+            token,
+            conversation._id,
+            selectedUser._id
+        );
+        if (data) {
+            setConversation(data);
+        }
+        setSelectedUser(null);
+        setShowModal(false);
+    };
+
+    const handleCancel = () => {
+        setSelectedUser(null);
+        setShowModal(false);
+    };
+
+    return (
+        <Modal visible={showModal} animationType="fade" transparent={true}>
+            <View style={styles.modalViewContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalTextContainer}>
+                        <Text style={styles.confirmText}>
+                            {options === "admin"
+                                ? "Do you want to grant admin permission to this user ?"
+                                : "Do you want to remove this user from this conversation ?"}
+                        </Text>
+                    </View>
+                    <View style={styles.modalBtnContainer}>
+                        <Pressable
+                            style={styles.cancelBtn}
+                            onPress={() => handleCancel()}
+                        >
+                            <Text style={styles.cancelBtnText}>Cancel</Text>
+                        </Pressable>
+                        <Pressable
+                            style={styles.confirmBtn}
+                            onPress={() =>
+                                options === "admin"
+                                    ? handleAddPermission()
+                                    : handleRemoveUser()
+                            }
+                        >
+                            <Text style={styles.confirmBtnText}>Confirm</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        </Modal>
     );
 };
 
@@ -146,6 +229,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 15,
     },
+    usernameContainer: {
+        justifyContent: "center",
+    },
     avatar: {
         width: 45,
         height: 45,
@@ -155,6 +241,11 @@ const styles = StyleSheet.create({
     memberName: {
         fontSize: FontSize.regular,
         fontFamily: "medium",
+    },
+    roleText: {
+        fontSize: FontSize.small,
+        fontFamily: "regular",
+        color: Colors.dark_gray,
     },
     iconContainer: {
         flexDirection: "row",
@@ -173,16 +264,60 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#ccc",
     },
-    buttonText: {
-        fontSize: 16,
+    modalViewContainer: {
+        position: "absolute",
+        bottom: Dimensions.get("screen").height / 2 - 80,
+        left: Dimensions.get("screen").width / 2 - 140,
+        width: 280,
+        height: 160,
+        borderRadius: 15,
+        backgroundColor: Colors.light_gray,
     },
-    buttonConfirm: {
-        backgroundColor: "red",
-        borderColor: "red",
+    modalView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 3,
     },
-    buttonTextConfirm: {
-        color: "white",
+    modalTextContainer: {
+        alignItems: "center",
+        paddingHorizontal: 11,
+        width: "100%",
+    },
+    modalBtnContainer: {
+        flexDirection: "row",
+        gap: 15,
+        marginTop: 15,
+    },
+    confirmBtnText: {
+        fontSize: FontSize.regular,
+        fontFamily: "medium",
+        color: Colors.white,
+    },
+    cancelBtnText: {
+        fontSize: FontSize.regular,
+        fontFamily: "medium",
+        color: Colors.black,
+    },
+    confirmBtn: {
+        backgroundColor: Colors.primary,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 5,
+    },
+    cancelBtn: {
+        backgroundColor: Colors.white,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 5,
+    },
+    confirmText: {
+        fontSize: FontSize.regular,
+        fontFamily: "medium",
+        color: Colors.white,
     },
 });
-
-export default ListMembers;

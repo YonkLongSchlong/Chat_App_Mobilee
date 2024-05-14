@@ -98,7 +98,7 @@ const SelectChatGroup = () => {
     const createGroup = async () => {
         if (selectedFriends.length > 1 && groupName.length > 0) {
             try {
-                const data = await useCreateGroupChat(
+                await useCreateGroupChat(
                     user,
                     token,
                     selectedFriends,

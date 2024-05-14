@@ -24,6 +24,7 @@ export default function ConversationCard({ convers }) {
         });
     }
 
+    console.log("Render Conversation card");
     /* LẮNG NGHE SOCKET */
     useListenNotification(conversation, setConversation);
 
