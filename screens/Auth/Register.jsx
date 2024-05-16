@@ -1,20 +1,20 @@
-import {
-    View,
-    Text,
-    Pressable,
-    StyleSheet,
-    Alert,
-    TextInput,
-} from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import LoginTextInput from "../../components/Inputs/LoginTextInput";
-import Checkbox from "expo-checkbox";
-import Colors from "../../constants/Colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { LogBox } from "react-native";
+import Checkbox from "expo-checkbox";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+    LogBox,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import LoginTextInput from "../../components/Inputs/LoginTextInput";
+import Colors from "../../constants/Colors";
+import {
+    emailRegex,
     passwordRegex,
     phoneRegex,
     usernameRegex,
@@ -32,7 +32,7 @@ export default function Register({ navigation }) {
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
-    const handleRegister = async ({ phone, username, password }) => {
+    const handleRegister = async ({ phone, username, password, email }) => {
         try {
             isFemale ? setGender("Female") : setGender("Male");
             await fetch(process.env.EXPO_PUBLIC_BASE_URL + "/auth/register", {
@@ -40,12 +40,14 @@ export default function Register({ navigation }) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     phone: phone,
+                    email: email,
                 }),
             });
             navigation.navigate("Otp", {
                 phone: phone,
                 username: username,
                 password: password,
+                email: email,
                 gender: gender,
                 dob: date,
             });
@@ -103,6 +105,18 @@ export default function Register({ navigation }) {
                             pattern: {
                                 value: phoneRegex,
                                 message: "Invalid phone number",
+                            },
+                        }}
+                    />
+                    <LoginTextInput
+                        name="email"
+                        control={control}
+                        placeholder="Enter your email"
+                        rules={{
+                            required: "Email is required",
+                            pattern: {
+                                value: emailRegex,
+                                message: "Invalid email",
                             },
                         }}
                     />

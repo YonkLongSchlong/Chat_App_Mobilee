@@ -1,12 +1,12 @@
-import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LoginTextInput from "../../components/Inputs/LoginTextInput";
-import { useForm } from "react-hook-form";
 
 export default function Otp({ route, navigation }) {
     const { control, handleSubmit } = useForm();
-    const { username, phone, password, gender, dob } = route.params;
+    const { username, phone, password, gender, dob, email } = route.params;
 
     const handleConfirmOtp = async ({ otp }) => {
         try {
@@ -20,6 +20,7 @@ export default function Otp({ route, navigation }) {
                         otp: otp,
                         username: username,
                         password: password,
+                        email: email,
                         gender: gender,
                         dob: dob,
                     }),
