@@ -4,6 +4,7 @@ import Colors from "../../constants/Colors";
 import AddFriendIntoGroup from "../Chat/AddFriendIntoGroup";
 import Chat1to1 from "../Chat/Chat1to1";
 import { ChatGroup } from "../Chat/ChatGroup";
+import { ImageView } from "../Chat/ImageView";
 import ListMembers from "../Chat/ListMembers";
 import Option from "../Chat/Option";
 import SelectChatGroup from "../Chat/SelectedChatGroup";
@@ -253,6 +254,14 @@ export default function AppStack() {
                         fontFamily: "semiBold",
                         fontSize: FontSize.medium,
                     },
+                }}
+            />
+
+            <Stack.Screen
+                name="ImageView"
+                component={ImageView}
+                options={{
+                    headerShown: false,
                 }}
             />
         </Stack.Navigator>

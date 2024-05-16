@@ -15,7 +15,11 @@ import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
 import { ConversationContext } from "../../context/ConversationContext";
-import { useAddPermission, useRemoveParticipant } from "../../hooks/ChatGroup";
+import {
+    useAddPermission,
+    useRemoveParticipant,
+    useRevokeAdminPermission,
+} from "../../hooks/ChatGroup";
 
 export default ListMembers = () => {
     const { conversation, setConversation } = useContext(ConversationContext);
@@ -80,6 +84,12 @@ const UserCard = ({
         setSelectedUser(item);
     };
 
+    const handleBtnRevokePermission = () => {
+        setShowModal(true);
+        setOptions("revoke");
+        setSelectedUser(item);
+    };
+
     const handleBtnRemoveUser = () => {
         setShowModal(true);
         setOptions("remove");
@@ -108,6 +118,13 @@ const UserCard = ({
                     <Pressable onPress={() => handleBtnAddPermission()}>
                         <Ionicons
                             name="add-circle"
+                            size={22}
+                            color={Colors.primary}
+                        />
+                    </Pressable>
+                    <Pressable onPress={() => handleBtnRevokePermission()}>
+                        <Ionicons
+                            name="remove-circle"
                             size={22}
                             color={Colors.primary}
                         />
@@ -161,6 +178,19 @@ const ConfirmationModal = ({
         setShowModal(false);
     };
 
+    const handleRevokePermission = async () => {
+        const data = await useRevokeAdminPermission(
+            token,
+            conversation._id,
+            selectedUser._id
+        );
+        if (data) {
+            setConversation(data);
+        }
+        setSelectedUser(null);
+        setShowModal(false);
+    };
+
     const handleCancel = () => {
         setSelectedUser(null);
         setShowModal(false);
@@ -174,6 +204,8 @@ const ConfirmationModal = ({
                         <Text style={styles.confirmText}>
                             {options === "admin"
                                 ? "Do you want to grant admin permission to this user ?"
+                                : options === "revoke"
+                                ? "Do you want to revoke admin permission from this user ?"
                                 : "Do you want to remove this user from this conversation ?"}
                         </Text>
                     </View>
@@ -189,6 +221,8 @@ const ConfirmationModal = ({
                             onPress={() =>
                                 options === "admin"
                                     ? handleAddPermission()
+                                    : options === "revoke"
+                                    ? handleRevokePermission()
                                     : handleRemoveUser()
                             }
                         >

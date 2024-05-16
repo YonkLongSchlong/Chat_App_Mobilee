@@ -1,39 +1,35 @@
-import React, { useState, useContext, useEffect } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    Image,
-} from "react-native";
-import { useFetchFriends } from "../../hooks/FriendRequest/useFetchFriends";
-import { AuthContext } from "../../context/AuthContext";
-import Colors from "../../constants/Colors";
-import { Delete } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    ToastAndroid,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import Colors from "../../constants/Colors";
+import { AuthContext } from "../../context/AuthContext";
+import { ConversationContext } from "../../context/ConversationContext";
+import { FriendsContext } from "../../context/FriendsContext";
 import useAddFriendGroup from "../../hooks/ChatGroup/useAddFriendGroup";
 
-const AddFriendIntoGroup = ({ route }) => {
+const AddFriendIntoGroup = () => {
     const [selectedFriends, setSelectedFriends] = useState([]);
-    const [friends, setFriends] = useState([]);
-    const { user, token } = useContext(AuthContext);
-    const [error, setError] = useState("");
+    const { friends } = useContext(FriendsContext);
+    const [friendList, setFriendList] = useState([]);
+    const { token } = useContext(AuthContext);
     const navigation = useNavigation();
-    const { conversation } = route.params;
-
-    const fetchFriends = async () => {
-        const response = await useFetchFriends(user, token);
-        const data = await response.json();
-        if (response.status === 401) {
-            setFriends([]);
-        } else {
-            setFriends(data);
-        }
-    };
+    const { conversation, setConversation } = useContext(ConversationContext);
 
     useEffect(() => {
-        fetchFriends();
+        const results = friends.filter(
+            ({ _id: id1 }) =>
+                !conversation.participants.some(({ _id: id2 }) => id2 === id1)
+        );
+        console.log(results);
+        setFriendList(results);
     }, []);
 
     const renderFriendItem = ({ item }) => (
@@ -74,35 +70,36 @@ const AddFriendIntoGroup = ({ route }) => {
 
     const addFriendIntoGroup = async () => {
         if (selectedFriends.length > 0) {
-            try {
-                const promises = selectedFriends.map((friendId) =>
-                    useAddFriendGroup(token, conversation._id, friendId)
-                );
-                console.log("cid", conversation._id);
-
-                await Promise.all(promises);
-                // Xử lý khi thêm bạn bè vào nhóm thành công
-                // console.log("fid", friendId);
-                console.log("Add friend into group successfully:");
+            const data = await useAddFriendGroup(
+                token,
+                conversation._id,
+                selectedFriends
+            );
+            console.log(data);
+            if (data) {
+                setConversation(data);
                 navigation.goBack();
-            } catch (error) {
-                console.log("Error adding friends to group:", error.message);
-                setError("Đã xảy ra lỗi khi thêm bạn bè vào nhóm");
+            } else {
+                return;
             }
         } else {
-            setError("Chọn ít nhất một thành viên!");
+            ToastAndroid.show(
+                "Please select a friend to add to group",
+                ToastAndroid.SHORT
+            );
         }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Danh sách bạn bè</Text>
-            <FlatList
-                data={friends}
-                renderItem={renderFriendItem}
-                style={styles.friendList}
-            />
-            {error !== "" && <Text style={styles.error}>{error}</Text>}
+            {friendList.length > 0 && (
+                <FlatList
+                    data={friendList}
+                    renderItem={renderFriendItem}
+                    style={styles.friendList}
+                />
+            )}
             <TouchableOpacity
                 style={styles.btnAdd}
                 onPress={addFriendIntoGroup}
@@ -154,10 +151,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
-    },
-    error: {
-        color: "red",
-        marginBottom: 10,
     },
     btnAdd: {
         paddingHorizontal: 20,

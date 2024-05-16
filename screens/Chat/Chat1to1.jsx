@@ -203,7 +203,7 @@ export default function Chat1to1({ route, navigation }) {
         }
     };
 
-    console.log("render");
+    console.log("Render chat 1v1");
     useEffect(() => {
         const getMessage = async () => {
             setIsLoading(true);

@@ -8,6 +8,7 @@ import { useCloseGroupChat } from "./useCloseGroupChat";
 import { useCreateGroupChat } from "./useFetchCreateGroup";
 import { useListMembersInGroup } from "./useListMemberInGroup";
 import { useRemoveParticipant } from "./useRemoveParticipant";
+import { useRevokeAdminPermission } from "./useRevokeAdminPermission";
 import useSendGroupChatFile from "./useSendGroupChatFile";
 import useShareGroupChatMessage from "./useShareGroupChatMessage";
 
@@ -20,6 +21,7 @@ export {
     useFetchGroupChatMessages,
     useListMembersInGroup,
     useRemoveParticipant,
+    useRevokeAdminPermission,
     useSendGroupChatFile,
     useSendGroupChatImages,
     useSendGroupChatMessage,

@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Colors from "../../constants/Colors";
@@ -12,6 +13,7 @@ const ChatReceiver = ({
     participant,
 }) => {
     const messageType = item.messageType;
+    const navigation = useNavigation();
     const formatTime = (time) => {
         const options = { hour: "numeric", minute: "numeric" };
         return new Date(time).toLocaleString("en-US", options);
@@ -31,6 +33,13 @@ const ChatReceiver = ({
             onLongPress={() => {
                 setShowModal(true);
                 setSelectedMessage(item);
+            }}
+            onPress={() => {
+                if (messageType === "image") {
+                    navigation.navigate("ImageView", {
+                        item,
+                    });
+                }
             }}
         >
             <View style={styles.userAvatarContainer}>

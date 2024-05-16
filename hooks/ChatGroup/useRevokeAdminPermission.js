@@ -1,9 +1,13 @@
 import { ToastAndroid } from "react-native";
 
-const useAddFriendToGroup = async (token, conversationId, participantsId) => {
+export const useRevokeAdminPermission = async (
+    token,
+    conversationId,
+    participantId
+) => {
     try {
         const response = await fetch(
-            process.env.EXPO_PUBLIC_BASE_URL + "/group/add",
+            process.env.EXPO_PUBLIC_BASE_URL + "/group/admin/revoke",
             {
                 method: "POST",
                 headers: {
@@ -12,19 +16,16 @@ const useAddFriendToGroup = async (token, conversationId, participantsId) => {
                 },
                 body: JSON.stringify({
                     conversationId,
-                    participantsId,
+                    participantId,
                 }),
             }
         );
+
         const data = await response.json();
-        if (data.error) {
-            throw new Error(data.error);
-        }
+        if (data.error || response.status == 404 || response.status == 400)
+            throw new Error(data);
         return data;
     } catch (error) {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);
-        throw error;
     }
 };
-
-export default useAddFriendToGroup;

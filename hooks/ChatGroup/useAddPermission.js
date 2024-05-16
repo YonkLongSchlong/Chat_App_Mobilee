@@ -7,7 +7,7 @@ export const useAddPermission = async (
 ) => {
     try {
         const response = await fetch(
-            process.env.EXPO_PUBLIC_BASE_URL + "/group/admin",
+            process.env.EXPO_PUBLIC_BASE_URL + "/group/admin/grant",
             {
                 method: "POST",
                 headers: {
