@@ -8,7 +8,10 @@ import {
     ToastAndroid,
     TouchableOpacity,
     View,
+    ScrollView,
+    Pressable
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Colors from "../../constants/Colors";
 import { AuthContext } from "../../context/AuthContext";
 import { ConversationContext } from "../../context/ConversationContext";
@@ -90,6 +93,33 @@ const AddFriendIntoGroup = () => {
         }
     };
 
+    const selectedFriendItems = selectedFriends.map((friendId) => {
+        const friend = friends.find((item) => item._id === friendId);
+
+        return (
+            <View style={styles.selectedFriendItem} key={friend._id}>
+                <View style={styles.friendContainer}>
+                    <Image
+                        source={{ uri: friend.avatar }}
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.friendName}>{friend.username}</Text>
+                </View>
+                <Pressable onPress={() => removeSelectedFriend(friend._id)}>
+                    <Ionicons
+                        name="close-circle"
+                        size={22}
+                        color={Colors.dark_gray}
+                    />
+                </Pressable>
+            </View>
+        );
+    });
+
+    const removeSelectedFriend = (friendId) => {
+        setSelectedFriends(selectedFriends.filter((id) => id !== friendId));
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Danh sách bạn bè</Text>
@@ -100,6 +130,10 @@ const AddFriendIntoGroup = () => {
                     style={styles.friendList}
                 />
             )}
+            <Text style={styles.selectedHeading}>Selected members</Text>
+            <ScrollView style={styles.selectedFriendList}>
+                    {selectedFriendItems}
+                </ScrollView>
             <TouchableOpacity
                 style={styles.btnAdd}
                 onPress={addFriendIntoGroup}
@@ -143,6 +177,20 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: "#ccc",
     },
+    selectedFriendItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 10,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: Colors.light_gray,
+    },
+    friendContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 20,
+    },
+   
     checkboxContainer: {
         width: 20,
         height: 20,
@@ -151,6 +199,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
+    },
+    selectedHeading: {
+        marginBottom: 10,
+        fontFamily: "semiBold",
+    },
+    selectedFriendList: {
+        flex: 1,
+        width: "100%",
+        marginBottom: 10,
     },
     btnAdd: {
         paddingHorizontal: 20,
