@@ -1,14 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Video } from "expo-av";
 import * as FileSystem from "expo-file-system";
-import React from "react";
-import { Image, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
+import React, { useRef } from "react";
+import { Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
 
-export const ImageView = ({ route, navigation }) => {
+export const VideoView = ({ route }) => {
     const { item } = route.params;
+    const video = useRef(null);
 
     const downLoadImage = async () => {
+        console.log("Press");
         const fileName = item.message;
         const result = await FileSystem.downloadAsync(
             item.messageUrl,
@@ -70,10 +73,15 @@ export const ImageView = ({ route, navigation }) => {
                         </Pressable>
                     </View>
                 </View>
-                <View style={styles.imageContainer}>
-                    <Image
-                        style={styles.image}
+                <View style={styles.videoContainer}>
+                    <Video
+                        ref={video}
+                        style={styles.video}
                         source={{ uri: `${item.messageUrl}` }}
+                        useNativeControls
+                        resizeMode="contain"
+                        isLooping
+                        shouldPlay
                     />
                 </View>
             </View>
@@ -95,7 +103,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         alignItems: "center",
     },
-    imageContainer: {
+    videoContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
@@ -103,9 +111,9 @@ const styles = StyleSheet.create({
         aspectRatio: 1 / 2,
         backgroundColor: Colors.white,
     },
-    image: {
+    video: {
         flex: 1,
-        width: "100%",
-        resizeMode: "contain",
+        justifyContent: "center",
+        alignSelf: "stretch",
     },
 });

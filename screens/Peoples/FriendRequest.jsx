@@ -80,10 +80,8 @@ const FriendRequestCard = ({ item, user, token, setFriends, friends }) => {
             token,
             item.req._id
         );
-        console.log(response);
         if (response.status == 200) {
             const data = await response.json();
-            console.log(data);
             setFriends([...friends, data[2]]);
             setAccepted(true);
         }

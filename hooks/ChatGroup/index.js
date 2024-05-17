@@ -10,6 +10,7 @@ import { useListMembersInGroup } from "./useListMemberInGroup";
 import { useRemoveParticipant } from "./useRemoveParticipant";
 import { useRevokeAdminPermission } from "./useRevokeAdminPermission";
 import useSendGroupChatFile from "./useSendGroupChatFile";
+import { useSendGroupChatVideos } from "./useSendGroupChatVideos";
 import useShareGroupChatMessage from "./useShareGroupChatMessage";
 
 export {
@@ -25,5 +26,6 @@ export {
     useSendGroupChatFile,
     useSendGroupChatImages,
     useSendGroupChatMessage,
+    useSendGroupChatVideos,
     useShareGroupChatMessage,
 };

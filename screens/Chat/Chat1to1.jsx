@@ -34,6 +34,7 @@ import {
     useSendFile,
     useSendImages,
     useSendMessage,
+    useSendVideos,
 } from "../../hooks/Messages/index";
 
 export default function Chat1to1({ route, navigation }) {
@@ -100,6 +101,38 @@ export default function Chat1to1({ route, navigation }) {
                 return;
             }
             setSelectedImage(result.assets);
+        }
+    };
+
+    const handleSendVideo = async () => {
+        const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status) {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                allowsMultipleSelection: true,
+            });
+            if (result.canceled) {
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < result.assets.length; i++) {
+                const fileMime = result.assets[i].type;
+                const fileType = result.assets[i].uri.split(".").pop();
+                const fileName = result.assets[i].uri.split("/").pop();
+                formData.append("videos[]", {
+                    uri: `${result.assets[i].uri}`,
+                    type: `${fileMime}/${fileType}`,
+                    name: `${fileName}`,
+                });
+            }
+            const data = await useSendVideos(token, participant._id, formData);
+            LogBox.ignoreAllLogs();
+            if (data.length == 0 || data === undefined) {
+                return;
+            }
+            console.log(data);
+            setMessages((messages) => [...messages, ...data]);
         }
     };
 
@@ -317,6 +350,16 @@ export default function Chat1to1({ route, navigation }) {
                     <Pressable onPress={handleSelectImage}>
                         <Ionicons
                             name="image-outline"
+                            size={24}
+                            color={Colors.primary}
+                            style={styles.optionButtonIcon}
+                        />
+                    </Pressable>
+
+                    {/* ---------- SELECT VIDEO BTN ---------- */}
+                    <Pressable onPress={handleSendVideo}>
+                        <Ionicons
+                            name="film-outline"
                             size={24}
                             color={Colors.primary}
                             style={styles.optionButtonIcon}

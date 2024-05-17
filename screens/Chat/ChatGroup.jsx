@@ -33,6 +33,7 @@ import {
     useFetchGroupChatMessages,
     useSendGroupChatImages,
     useSendGroupChatMessage,
+    useSendGroupChatVideos,
 } from "../../hooks/ChatGroup/index";
 import useSendGroupChatFile from "../../hooks/ChatGroup/useSendGroupChatFile";
 import { useListenMesages } from "../../hooks/ListenSocket/useListenMesages";
@@ -98,6 +99,39 @@ export const ChatGroup = ({ route, navigation }) => {
                 return;
             }
             setSelectedImage(result.assets);
+        }
+    };
+
+    const handleSendVideo = async () => {
+        const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status) {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                allowsMultipleSelection: true,
+            });
+            if (result.canceled) {
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < result.assets.length; i++) {
+                const fileMime = result.assets[i].type;
+                const fileType = result.assets[i].uri.split(".").pop();
+                const fileName = result.assets[i].uri.split("/").pop();
+                formData.append("videos[]", {
+                    uri: `${result.assets[i].uri}`,
+                    type: `${fileMime}/${fileType}`,
+                    name: `${fileName}`,
+                });
+            }
+            formData.append("conversationId", `${conversation._id}`);
+            const data = await useSendGroupChatVideos(token, formData);
+            LogBox.ignoreAllLogs();
+            if (data.length == 0 || data === undefined) {
+                return;
+            }
+            setMessages([...messages, ...data.resultMessage]);
+            setSelectedImage(null);
         }
     };
 
@@ -310,6 +344,7 @@ export const ChatGroup = ({ route, navigation }) => {
                     </View>
                 ) : (
                     <View style={styles.messageInputContainer}>
+                        {/* ---------- SELECT FILE BTN ---------- */}
                         <Pressable onPress={handleSelectFile}>
                             <Ionicons
                                 name="attach"
@@ -323,6 +358,16 @@ export const ChatGroup = ({ route, navigation }) => {
                         <Pressable onPress={handleSelectImage}>
                             <Ionicons
                                 name="image-outline"
+                                size={24}
+                                color={Colors.primary}
+                                style={styles.optionButtonIcon}
+                            />
+                        </Pressable>
+
+                        {/* ---------- SELECT VIDEO BTN ---------- */}
+                        <Pressable onPress={handleSendVideo}>
+                            <Ionicons
+                                name="film-outline"
                                 size={24}
                                 color={Colors.primary}
                                 style={styles.optionButtonIcon}

@@ -1,10 +1,10 @@
 import { ToastAndroid } from "react-native";
 
-export default useSendImages = async (token, receiverId, formData) => {
+export default useSendVideos = async (token, receiverId, formData) => {
     try {
         const response = await fetch(
             process.env.EXPO_PUBLIC_BASE_URL +
-                `/messages/send/image/${receiverId}`,
+                `/messages/send/video/${receiverId}`,
             {
                 headers: {
                     Accept: "application/json",

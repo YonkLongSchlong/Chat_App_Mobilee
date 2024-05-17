@@ -1,12 +1,23 @@
+import { useNavigation } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import * as Contacts from "expo-contacts";
 import React, { useContext, useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+    ActivityIndicator,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SettingsHeaderBar from "../../components/HeaderBar/SettingsHeaderBar";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
+import { FriendRequestsSentContext } from "../../context/FriendRequestSentContext";
+import { FriendsContext } from "../../context/FriendsContext";
+import { useFetchFriendRecipent } from "../../hooks/FriendRequest/useFetchFriendRecipent";
 
 export default function Contact() {
     const [users, setUsers] = useState(null);
@@ -58,26 +69,67 @@ export default function Contact() {
             <View style={{ flex: 1, paddingTop: 55 }}>
                 <SettingsHeaderBar />
                 <View style={{ marginTop: 10, height: "100%" }}>
-                    <FlashList
-                        data={users}
-                        renderItem={({ item, index }) => (
-                            <ContactCard
-                                user={item}
-                                contacts={contacts}
-                                index={index}
-                            />
-                        )}
-                        estimatedItemSize={10}
-                    />
+                    {users ? (
+                        <FlashList
+                            data={users}
+                            renderItem={({ item, index }) => (
+                                <ContactCard
+                                    item={item}
+                                    contacts={contacts}
+                                    index={index}
+                                />
+                            )}
+                            estimatedItemSize={10}
+                        />
+                    ) : (
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <ActivityIndicator />
+                        </View>
+                    )}
                 </View>
             </View>
         </SafeAreaView>
     );
 }
 
-const ContactCard = ({ user, contacts, index }) => {
+const ContactCard = ({ item, contacts, index }) => {
+    const { friends } = useContext(FriendsContext);
+    const { friendRequestsSent, setFriendRequestsSent } = useContext(
+        FriendRequestsSentContext
+    );
+
+    const { user, token } = useContext(AuthContext);
+    const navigation = useNavigation();
+    const [isSent, setIsSent] = useState(false);
+    let isFriends = false;
+    friends.forEach((friend) => {
+        if (friend._id === item._id) {
+            return (isFriends = true);
+        }
+    });
+
+    const handleSendFriendsRequest = async () => {
+        const response = await useFetchFriendRecipent(user, token, item._id);
+        const data = await response.json();
+        if (response.ok) {
+            setIsSent(true);
+            // setFriendRequestsSent((friendRequestsSent) => [
+            //     ...friendRequestsSent,
+            //     data,
+            // ]);
+        } else {
+            return;
+        }
+    };
+
     return (
-        <>
+        <View>
             <View style={styles.cardContainer}>
                 <View style={styles.userContainer}>
                     {/* ---------- AVARTA ---------- */}
@@ -88,13 +140,13 @@ const ContactCard = ({ user, contacts, index }) => {
                                 width: 55,
                                 resizeMode: "cover",
                             }}
-                            source={require("../../assets/96YOG1ej_200x200.jpg")}
+                            source={{ uri: `${item.avatar}` }}
                         />
                     </View>
 
                     {/* ---------- USERNAME ---------- */}
                     <View style={styles.nameContainer}>
-                        <Text style={styles.usernameText}>{user.username}</Text>
+                        <Text style={styles.usernameText}>{item.username}</Text>
                         <Text style={styles.contactNameText}>
                             Contact name: {contacts[index].name}
                         </Text>
@@ -102,11 +154,27 @@ const ContactCard = ({ user, contacts, index }) => {
                 </View>
 
                 {/* ---------- ADD FRIEND BUTTON ---------- */}
-                <Pressable>
-                    <Text style={styles.btnAdd}>Add friend</Text>
-                </Pressable>
+                {isFriends ? (
+                    <View>
+                        <Text style={styles.alreadyFriendBtn}>
+                            Already friends
+                        </Text>
+                    </View>
+                ) : (
+                    <>
+                        {!isSent ? (
+                            <Pressable onPress={handleSendFriendsRequest}>
+                                <Text style={styles.btnAdd}>Add friend</Text>
+                            </Pressable>
+                        ) : (
+                            <View>
+                                <Text style={styles.btnSent}>Revoke</Text>
+                            </View>
+                        )}
+                    </>
+                )}
             </View>
-        </>
+        </View>
     );
 };
 
@@ -144,6 +212,28 @@ const styles = StyleSheet.create({
     btnAdd: {
         color: Colors.white,
         backgroundColor: Colors.primary,
+        borderWidth: 1,
+        borderColor: Colors.light_gray,
+        borderRadius: 35,
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        fontFamily: "medium",
+        fontSize: FontSize.small,
+    },
+    btnSent: {
+        color: Colors.white,
+        backgroundColor: Colors.light_gray,
+        borderWidth: 1,
+        borderColor: Colors.light_gray,
+        borderRadius: 35,
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        fontFamily: "medium",
+        fontSize: FontSize.small,
+    },
+    alreadyFriendBtn: {
+        color: Colors.black,
+        backgroundColor: Colors.white,
         borderWidth: 1,
         borderColor: Colors.light_gray,
         borderRadius: 35,

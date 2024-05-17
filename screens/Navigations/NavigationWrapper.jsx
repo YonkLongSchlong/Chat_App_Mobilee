@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { ConversationProvider } from "../../context/ConversationContext";
 import { ConversationsProvider } from "../../context/ConversationsContext";
+import { FriendRequestsSentProvider } from "../../context/FriendRequestSentContext";
 import { FriendsProvider } from "../../context/FriendsContext";
 import { MessagesProvider } from "../../context/MessagesContext";
 import { SocketProvider } from "../../context/SocketContext";
@@ -18,11 +19,13 @@ export default function NavigationWrapper() {
                 <SocketProvider>
                     <MessagesProvider>
                         <FriendsProvider>
-                            <ConversationsProvider>
-                                <ConversationProvider>
-                                    <AppStack />
-                                </ConversationProvider>
-                            </ConversationsProvider>
+                            <FriendRequestsSentProvider>
+                                <ConversationsProvider>
+                                    <ConversationProvider>
+                                        <AppStack />
+                                    </ConversationProvider>
+                                </ConversationsProvider>
+                            </FriendRequestsSentProvider>
                         </FriendsProvider>
                     </MessagesProvider>
                 </SocketProvider>

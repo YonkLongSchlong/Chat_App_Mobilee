@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { Video } from "expo-av";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Colors from "../../constants/Colors";
@@ -21,9 +22,15 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
                 setSelectedMessage(item);
             }}
             onPress={() => {
-                navigation.navigate("ImageView", {
-                    item,
-                });
+                if (messageType === "image") {
+                    navigation.navigate("ImageView", {
+                        item,
+                    });
+                } else if (messageType === "video") {
+                    navigation.navigate("VideoView", {
+                        item,
+                    });
+                }
             }}
         >
             <View style={styles.messageBubble}>
@@ -44,7 +51,7 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
                             {formatTime(item.createdAt)}
                         </Text>
                     </>
-                ) : (
+                ) : messageType == "file" ? (
                     <View style={styles.messageFileContainer}>
                         <Ionicons
                             name="document"
@@ -60,6 +67,19 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
                             </Text>
                         </View>
                     </View>
+                ) : (
+                    <>
+                        <Video
+                            style={styles.video}
+                            source={{ uri: `${item.messageUrl}` }}
+                            useNativeControls
+                            resizeMode="contain"
+                            isLooping
+                        />
+                        <Text style={styles.timeText}>
+                            {formatTime(item.createdAt)}
+                        </Text>
+                    </>
                 )}
             </View>
         </Pressable>
@@ -96,6 +116,11 @@ const styles = StyleSheet.create({
     messageFileContainer: {
         flexDirection: "row",
         gap: 10,
+    },
+    video: {
+        width: 220,
+        height: 220,
+        borderRadius: 10,
     },
 });
 

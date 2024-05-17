@@ -20,23 +20,52 @@ import {
     useListenAcceptRequest,
     useListenConversations,
 } from "../../hooks/ListenSocket";
+import { replaceName } from "../../utils/ReplaceName";
 
 export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const { conversations, setConversations } =
         useContext(ConversationsContext);
-    const { token } = useContext(AuthContext);
+    const [filteredList, setFilteredList] = useState([]);
+    const { user, token } = useContext(AuthContext);
+
+    const handleSearch = (text) => {
+        if (text === "") {
+            setFilteredList(conversations);
+            return;
+        }
+
+        const searchList = conversations.filter((conversation) => {
+            if (!conversation.name) {
+                if (conversation.participants[0]._id !== user._id)
+                    return replaceName(conversation.participants[0].username)
+                        .toLowerCase()
+                        .includes(text.toLowerCase());
+                if (conversation.participants[1]._id !== user._id)
+                    return replaceName(conversation.participants[1].username)
+                        .toLowerCase()
+                        .includes(text.toLowerCase());
+            } else {
+                return replaceName(conversation.name)
+                    .toLowerCase()
+                    .includes(text.toLowerCase());
+            }
+        });
+        setFilteredList(searchList);
+    };
 
     /* LẮNG NGHE SOCKET */
     useListenConversations();
     useListenAcceptRequest();
 
     console.log("Render dashboard");
+
     useEffect(() => {
         const getConversations = async () => {
             setIsLoading(true);
             const data = await useFetchConversations(token);
             setConversations(data);
+            setFilteredList(data);
             setIsLoading(false);
         };
 
@@ -48,7 +77,7 @@ export default function Dashboard() {
             {/* ---------- SEARCH BAR ---------- */}
             <LinearGradient colors={Colors.gradient}>
                 <SafeAreaView>
-                    <UserHeaderBar />
+                    <UserHeaderBar handleSearch={handleSearch} />
                 </SafeAreaView>
             </LinearGradient>
 
@@ -72,7 +101,7 @@ export default function Dashboard() {
                 {!isLoading ? (
                     <ScrollView>
                         {conversations &&
-                            conversations.map((conversation) => {
+                            filteredList.map((conversation) => {
                                 return (
                                     <ConversationCard
                                         key={conversation._id}

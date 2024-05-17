@@ -9,6 +9,7 @@ import ListMembers from "../Chat/ListMembers";
 import Option from "../Chat/Option";
 import SelectChatGroup from "../Chat/SelectedChatGroup";
 import { ShareMessage } from "../Chat/ShareMessage";
+import { VideoView } from "../Chat/VideoView";
 import Birthday from "../Peoples/Birthday";
 import Contact from "../Peoples/Contact";
 import FriendRequest from "../Peoples/FriendRequest";
@@ -194,6 +195,7 @@ export default function AppStack() {
                     },
                 }}
             />
+
             <Stack.Screen
                 name="Option"
                 component={Option}
@@ -261,7 +263,18 @@ export default function AppStack() {
                 name="ImageView"
                 component={ImageView}
                 options={{
-                    headerShown: false,
+                    headerShown: true,
+                    headerTitle: "",
+                    headerTransparent: true,
+                }}
+            />
+            <Stack.Screen
+                name="VideoView"
+                component={VideoView}
+                options={{
+                    headerShown: true,
+                    headerTitle: "",
+                    headerTransparent: true,
                 }}
             />
         </Stack.Navigator>
