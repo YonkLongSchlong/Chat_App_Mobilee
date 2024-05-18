@@ -4,7 +4,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Plus, QrCode, Search } from "lucide-react-native";
 
-export default function UserHeaderBar({ handleSearch }) {
+export default function UserHeaderBar() {
     const navigation = useNavigation();
 
     const handlePlus = async () => {
@@ -16,11 +16,7 @@ export default function UserHeaderBar({ handleSearch }) {
                 <TouchableOpacity>
                     <Search size={24} color={"black"} />
                 </TouchableOpacity>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Search"
-                    onChangeText={(text) => handleSearch(text)}
-                />
+                <TextInput style={styles.textInput} placeholder="Search" />
                 <TouchableOpacity onPress={handlePlus}>
                     <Plus size={24} color={"black"} />
                 </TouchableOpacity>

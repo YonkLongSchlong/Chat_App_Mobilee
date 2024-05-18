@@ -78,6 +78,7 @@ const UserCard = ({
     setOptions,
     setSelectedUser,
 }) => {
+    const { user } = useContext(AuthContext);
     const handleBtnAddPermission = () => {
         setShowModal(true);
         setOptions("admin");
@@ -113,7 +114,7 @@ const UserCard = ({
                 </View>
             </View>
 
-            {conversation.status === 1 ? (
+            {conversation.status === 1 && item._id != user._id ? (
                 <View style={styles.iconContainer}>
                     <Pressable onPress={() => handleBtnAddPermission()}>
                         <Ionicons

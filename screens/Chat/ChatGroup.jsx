@@ -130,7 +130,6 @@ export const ChatGroup = ({ route, navigation }) => {
             if (data.length == 0 || data === undefined) {
                 return;
             }
-            setMessages([...messages, ...data.resultMessage]);
             setSelectedImage(null);
         }
     };
@@ -153,7 +152,6 @@ export const ChatGroup = ({ route, navigation }) => {
         if (data.length == 0 || data === undefined) {
             return;
         }
-        setMessages([...messages, ...data.resultMessage]);
         setSelectedImage(null);
     };
 

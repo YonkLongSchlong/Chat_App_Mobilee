@@ -16,9 +16,14 @@ export default useSendFiles = async (token, receiverId, formData) => {
             }
         );
         const data = await response.json();
-        if (data.error || response.status === 404 || response.status === 400)
+        if (
+            data.error ||
+            response.status === 404 ||
+            response.status === 400 ||
+            response.status === 500
+        )
             throw new Error(data, error);
-        return data;
+        return data.resultMessage;
     } catch (error) {
         ToastAndroid.show("Please try again", ToastAndroid.LONG);
     }

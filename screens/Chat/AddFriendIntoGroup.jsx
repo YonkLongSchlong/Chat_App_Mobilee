@@ -1,17 +1,17 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import {
     FlatList,
     Image,
+    Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     ToastAndroid,
     TouchableOpacity,
     View,
-    ScrollView,
-    Pressable
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import Colors from "../../constants/Colors";
 import { AuthContext } from "../../context/AuthContext";
 import { ConversationContext } from "../../context/ConversationContext";
@@ -31,7 +31,6 @@ const AddFriendIntoGroup = () => {
             ({ _id: id1 }) =>
                 !conversation.participants.some(({ _id: id2 }) => id2 === id1)
         );
-        console.log(results);
         setFriendList(results);
     }, []);
 
@@ -78,7 +77,6 @@ const AddFriendIntoGroup = () => {
                 conversation._id,
                 selectedFriends
             );
-            console.log(data);
             if (data) {
                 setConversation(data);
                 navigation.goBack();
@@ -132,8 +130,8 @@ const AddFriendIntoGroup = () => {
             )}
             <Text style={styles.selectedHeading}>Selected members</Text>
             <ScrollView style={styles.selectedFriendList}>
-                    {selectedFriendItems}
-                </ScrollView>
+                {selectedFriendItems}
+            </ScrollView>
             <TouchableOpacity
                 style={styles.btnAdd}
                 onPress={addFriendIntoGroup}
@@ -190,7 +188,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 20,
     },
-   
+
     checkboxContainer: {
         width: 20,
         height: 20,

@@ -14,6 +14,7 @@ import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import { AuthContext } from "../../context/AuthContext";
 import { ConversationContext } from "../../context/ConversationContext";
+import { useLeaveGroupChat } from "../../hooks/ChatGroup";
 import { useCloseGroupChat } from "../../hooks/ChatGroup/useCloseGroupChat";
 
 const Option = () => {
@@ -42,6 +43,10 @@ const Option = () => {
                         />
                     </Pressable>
                 </View>
+                {/* ------------- UTILITY BUTTON CONTAINER ------------- */}
+                <View style={styles.btnContainerHeader}>
+                    <Text style={styles.header}>Chat info</Text>
+                </View>
                 <View style={styles.utilityBtnContainer}>
                     <UtilityBtn
                         label={"Add members"}
@@ -50,6 +55,7 @@ const Option = () => {
                         route={"AddFriendIntoGroup"}
                         conversation={conversation}
                     />
+                    <View style={styles.separator}></View>
                     <UtilityBtn
                         label={"See members"}
                         navigation={navigation}
@@ -57,9 +63,30 @@ const Option = () => {
                         route={"ListMembers"}
                         conversation={conversation}
                     />
+                </View>
+
+                {/* ------------- TERMINATE BUTTON CONTAINER ------------- */}
+                <View style={styles.btnContainerHeader}>
+                    <Text style={styles.header}>Privacy & support</Text>
+                </View>
+                <View style={styles.terminateBtnContainer}>
+                    <LeaveBtn
+                        label={"Leave group"}
+                        navigation={navigation}
+                        icon={"exit"}
+                        route={"Dashboard"}
+                        token={token}
+                        conversation={conversation}
+                    />
+                    <View
+                        style={[
+                            styles.separator,
+                            { backgroundColor: "#e35252" },
+                        ]}
+                    ></View>
                     <DisolveBtn
                         label={"Disolve group"}
-                        icon={"exit"}
+                        icon={"trash"}
                         token={token}
                         conversation={conversation}
                     />
@@ -97,7 +124,6 @@ const UtilityBtn = (props) => {
                 />
                 <Text style={styles.buttonText}>{props.label}</Text>
             </Pressable>
-            <View style={styles.separator}></View>
         </>
     );
 };
@@ -117,15 +143,57 @@ const DisolveBtn = (props) => {
     };
 
     return (
-        <Pressable style={styles.utilityBtn} onPress={handleDisbandGroup}>
+        <Pressable style={styles.terminateBtn} onPress={handleDisbandGroup}>
             <Ionicons
                 name={props.icon}
                 size={22}
-                color="white"
+                color="#e35252"
                 style={styles.icon}
             />
-            <Text style={styles.buttonText}>{props.label}</Text>
+            <Text style={styles.terminateBtnText}>{props.label}</Text>
         </Pressable>
+    );
+};
+
+const LeaveBtn = (props) => {
+    const { user } = useContext(AuthContext);
+
+    const handleDisbandGroup = async () => {
+        if (props.conversation.status === 2) {
+            const response = await useLeaveGroupChat(
+                props.token,
+                props.conversation._id
+            );
+            if (response.status === 200) {
+                props.navigation.navigate(props.route);
+                ToastAndroid.show(
+                    "You have leave the group",
+                    ToastAndroid.SHORT
+                );
+            }
+        } else if (
+            props.conversation.admin.includes(user._id.toString()) &&
+            props.conversation.admin.length == 1
+        ) {
+            ToastAndroid.show(
+                "There is only one admin and that is you, please add someone to be an admin before you leave",
+                ToastAndroid.LONG
+            );
+        }
+    };
+
+    return (
+        <>
+            <Pressable style={styles.terminateBtn} onPress={handleDisbandGroup}>
+                <Ionicons
+                    name={props.icon}
+                    size={22}
+                    color="#e35252"
+                    style={styles.icon}
+                />
+                <Text style={styles.terminateBtnText}>{props.label}</Text>
+            </Pressable>
+        </>
     );
 };
 
@@ -146,6 +214,16 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         resizeMode: "cover",
     },
+    btnContainerHeader: {
+        width: "100%",
+        paddingHorizontal: 20,
+        marginTop: 10,
+    },
+    header: {
+        fontSize: FontSize.regular,
+        fontFamily: "medium",
+        color: Colors.dark_gray,
+    },
     utilityBtnContainer: {
         backgroundColor: Colors.primary,
         alignItems: "flex-start",
@@ -155,7 +233,25 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 10,
     },
+    terminateBtnContainer: {
+        backgroundColor: Colors.white,
+        alignItems: "flex-start",
+        width: "90%",
+        paddingHorizontal: 20,
+        padding: 10,
+        marginTop: 10,
+        borderRadius: 10,
+        borderWidth: 0.9,
+        borderColor: "#e35252",
+    },
     utilityBtn: {
+        alignItems: "center",
+        padding: 5,
+        borderRadius: 5,
+        flexDirection: "row",
+        gap: 5,
+    },
+    terminateBtn: {
         alignItems: "center",
         padding: 5,
         borderRadius: 5,
@@ -170,6 +266,12 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: "white",
+        fontSize: FontSize.regular,
+        marginLeft: 10,
+        fontFamily: "medium",
+    },
+    terminateBtnText: {
+        color: "#e35252",
         fontSize: FontSize.regular,
         marginLeft: 10,
         fontFamily: "medium",

@@ -12,7 +12,14 @@ export default function ConversationCard({ convers }) {
     const [conversation, setConversation] = useState(convers);
     const { user } = useContext(AuthContext);
     const lastMessage = conversation.lastMessage;
-    const check = lastMessage?.messageType == "image" ? true : false;
+    const check =
+        lastMessage?.messageType == "image"
+            ? "image"
+            : lastMessage?.messageType == "file"
+            ? "file"
+            : lastMessage?.messageType == "video"
+            ? "video"
+            : "text";
     const route =
         conversation.conversationType === "1v1" ? "Chat1to1" : "ChatGroup";
     let participant = {};
@@ -75,8 +82,12 @@ export default function ConversationCard({ convers }) {
                                     style={styles.messageText}
                                     numberOfLines={1}
                                 >
-                                    {check
+                                    {check == "image"
                                         ? "Image"
+                                        : check == "file"
+                                        ? "File"
+                                        : check == "video"
+                                        ? "Video"
                                         : `${lastMessage?.message}`}
                                 </Text>
                             )}

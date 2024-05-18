@@ -52,21 +52,21 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
                         </Text>
                     </>
                 ) : messageType == "file" ? (
-                    <View style={styles.messageFileContainer}>
-                        <Ionicons
-                            name="document"
-                            size={22}
-                            color={Colors.black}
-                        />
-                        <View>
-                            <Text style={styles.messageText}>
+                    <>
+                        <View style={styles.messageFileContainer}>
+                            <Ionicons
+                                name="file-tray-outline"
+                                size={30}
+                                color={Colors.black}
+                            />
+                            <Text numberOfLines={1} style={styles.messageText}>
                                 {item.message}
                             </Text>
-                            <Text style={styles.timeText}>
-                                {formatTime(item.createdAt)}
-                            </Text>
                         </View>
-                    </View>
+                        <Text style={styles.timeText}>
+                            {formatTime(item.createdAt)}
+                        </Text>
+                    </>
                 ) : (
                     <>
                         <Video
@@ -116,6 +116,8 @@ const styles = StyleSheet.create({
     messageFileContainer: {
         flexDirection: "row",
         gap: 10,
+        overflow: "hidden",
+        alignItems: "center",
     },
     video: {
         width: 220,

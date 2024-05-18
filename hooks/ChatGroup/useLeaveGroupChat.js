@@ -1,16 +1,18 @@
 import { ToastAndroid } from "react-native";
 
-export const useSendGroupChatVideos = async (token, formData) => {
+export const useLeaveGroupChat = async (token, conversationId) => {
     try {
         const response = await fetch(
-            process.env.EXPO_PUBLIC_BASE_URL + "/group/messages/send/videos",
+            process.env.EXPO_PUBLIC_BASE_URL + "/group/leave",
             {
                 method: "POST",
                 headers: {
-                    "Content-Type": "multipart/form-data",
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: formData,
+                body: JSON.stringify({
+                    conversationId,
+                }),
             }
         );
         const data = await response.json();
@@ -22,7 +24,7 @@ export const useSendGroupChatVideos = async (token, formData) => {
         ) {
             throw new Error(data);
         }
-        return data.resultMessage;
+        return response;
     } catch (error) {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);
     }

@@ -14,10 +14,15 @@ export const useSendGroupChatImages = async (token, formData) => {
             }
         );
         const data = await response.json();
-        if (data.error || response.status === 400 || response.status === 404) {
+        if (
+            data.error ||
+            response.status === 400 ||
+            response.status === 404 ||
+            response.status === 500
+        ) {
             throw new Error(data);
         }
-        return data;
+        return data.resultMessage;
     } catch (error) {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);
     }

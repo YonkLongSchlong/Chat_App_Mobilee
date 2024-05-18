@@ -6,6 +6,7 @@ import useAddFriendToGroup from "./useAddFriendGroup";
 import { useAddPermission } from "./useAddPermission";
 import { useCloseGroupChat } from "./useCloseGroupChat";
 import { useCreateGroupChat } from "./useFetchCreateGroup";
+import { useLeaveGroupChat } from "./useLeaveGroupChat";
 import { useListMembersInGroup } from "./useListMemberInGroup";
 import { useRemoveParticipant } from "./useRemoveParticipant";
 import { useRevokeAdminPermission } from "./useRevokeAdminPermission";
@@ -20,6 +21,7 @@ export {
     useCreateGroupChat,
     useDeleteGroupChatMessage,
     useFetchGroupChatMessages,
+    useLeaveGroupChat,
     useListMembersInGroup,
     useRemoveParticipant,
     useRevokeAdminPermission,
