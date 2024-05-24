@@ -15,7 +15,10 @@ export const useCloseGroupChat = async (token, conversationId) => {
                 }),
             }
         );
-
+        const data = await response.json();
+        if (response.status === 400 || response.status === 404) {
+            throw new Error(data);
+        }
         return response;
     } catch (error) {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);

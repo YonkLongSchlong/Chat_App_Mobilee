@@ -23,6 +23,8 @@ export const useListenUpdateGroupChat = (conversation, setConversation) => {
         return () => {
             socket.off("updateGroupChat");
             socket.off("join");
+            socket.off("remove");
+            socket.off("close");
         };
     }, [socket]);
 };

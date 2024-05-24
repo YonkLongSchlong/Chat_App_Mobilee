@@ -31,6 +31,7 @@ import { useListenMesages } from "../../hooks/ListenSocket";
 import {
     useDeleteMessage,
     useFetchMessages,
+    useRevokeMessage,
     useSendFile,
     useSendImages,
     useSendMessage,
@@ -171,12 +172,28 @@ export default function Chat1to1({ route, navigation }) {
         }
     };
 
-    const handleDelete = async () => {
-        const newMessages = await useDeleteMessage(
+    const handleRevoke = async () => {
+        const newMessages = await useRevokeMessage(
             messages,
             participant._id,
             token,
             selectedMessage._id
+        );
+        if (newMessages === undefined) {
+            setShowModal(false);
+            return;
+        } else {
+            setMessages(newMessages);
+            setShowModal(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        const newMessages = await useDeleteMessage(
+            messages,
+            token,
+            selectedMessage._id,
+            participant._id
         );
         if (newMessages === undefined) {
             setShowModal(false);
@@ -255,39 +272,52 @@ export default function Chat1to1({ route, navigation }) {
         <SafeAreaView style={styles.safeAreaView}>
             {/* ---------- CHAT MODAL ---------- */}
             <Modal visible={showModal} animationType="slide" transparent={true}>
-                <View style={styles.modal}>
-                    <View style={styles.modalBtnContainer}>
-                        <ModalBtn
-                            label="Download image"
-                            deleteMessage={downLoadImage}
-                        />
-                        <ModalBtn
-                            label="Download file"
-                            deleteMessage={downLoadFile}
-                        />
-                        <ModalBtn
-                            label="Delete this message"
-                            deleteMessage={handleDelete}
-                        />
-                        <ModalBtn
-                            label="Share this message"
-                            deleteMessage={() => {
+                {selectedMessage && (
+                    <View style={styles.modal}>
+                        {selectedMessage.messageType === "text" ? (
+                            <ModalForText
+                                selectedMessage={selectedMessage}
+                                handleRevoke={handleRevoke}
+                                handleDelete={handleDelete}
+                                navigation={navigation}
+                                setShowModal={setShowModal}
+                            />
+                        ) : selectedMessage.messageType === "image" ||
+                          selectedMessage.messageType === "video" ? (
+                            <ModalForMedia
+                                selectedMessage={selectedMessage}
+                                handleRevoke={handleRevoke}
+                                handleDelete={handleDelete}
+                                navigation={navigation}
+                                downLoadImage={downLoadImage}
+                                setShowModal={setShowModal}
+                            />
+                        ) : (
+                            selectedMessage.messageType === "file" && (
+                                <ModalForFile
+                                    selectedMessage={selectedMessage}
+                                    handleRevoke={handleRevoke}
+                                    handleDelete={handleDelete}
+                                    navigation={navigation}
+                                    downLoadFile={downLoadFile}
+                                    setShowModal={setShowModal}
+                                />
+                            )
+                        )}
+                        <Pressable
+                            style={styles.closeModalBtn}
+                            onPress={() => {
                                 setShowModal(false);
-                                navigation.navigate("ShareMessage", {
-                                    selectedMessage,
-                                });
                             }}
-                        />
+                        >
+                            <Ionicons
+                                name="close"
+                                size={22}
+                                color={Colors.black}
+                            />
+                        </Pressable>
                     </View>
-                    <Pressable
-                        style={styles.closeModalBtn}
-                        onPress={() => {
-                            setShowModal(false);
-                        }}
-                    >
-                        <Ionicons name="close" size={22} color={Colors.black} />
-                    </Pressable>
-                </View>
+                )}
             </Modal>
 
             {/* ---------- CHAT HEADER ---------- */}
@@ -309,6 +339,7 @@ export default function Chat1to1({ route, navigation }) {
                                         setShowModal={setShowModal}
                                         setSelectedMessage={setSelectedMessage}
                                         participant={participant}
+                                        mainUser={user}
                                     />
                                 );
                             } else {
@@ -318,6 +349,7 @@ export default function Chat1to1({ route, navigation }) {
                                         item={item}
                                         setShowModal={setShowModal}
                                         setSelectedMessage={setSelectedMessage}
+                                        mainUser={user}
                                     />
                                 );
                             }
@@ -420,6 +452,100 @@ export default function Chat1to1({ route, navigation }) {
         </SafeAreaView>
     );
 }
+
+const ModalForText = ({
+    selectedMessage,
+    navigation,
+    handleRevoke,
+    setShowModal,
+    handleDelete,
+}) => {
+    return (
+        <View style={styles.modalBtnContainer}>
+            <ModalBtn
+                label="Revoke this message"
+                deleteMessage={handleRevoke}
+            />
+            <ModalBtn
+                label="Delete this message on your side"
+                deleteMessage={handleDelete}
+            />
+            <ModalBtn
+                label="Share this message"
+                deleteMessage={() => {
+                    setShowModal(false);
+                    navigation.navigate("ShareMessage", {
+                        selectedMessage,
+                    });
+                }}
+            />
+        </View>
+    );
+};
+
+const ModalForMedia = ({
+    selectedMessage,
+    navigation,
+    handleRevoke,
+    downLoadImage,
+    setShowModal,
+    handleDelete,
+}) => {
+    return (
+        <View style={styles.modalBtnContainer}>
+            <ModalBtn label="Download media" deleteMessage={downLoadImage} />
+            <ModalBtn
+                label="Revoke this message"
+                deleteMessage={handleRevoke}
+            />
+            <ModalBtn
+                label="Delete this message on your side"
+                deleteMessage={handleDelete}
+            />
+            <ModalBtn
+                label="Share this message"
+                deleteMessage={() => {
+                    setShowModal(false);
+                    navigation.navigate("ShareMessage", {
+                        selectedMessage,
+                    });
+                }}
+            />
+        </View>
+    );
+};
+
+const ModalForFile = ({
+    selectedMessage,
+    navigation,
+    handleRevoke,
+    downLoadFile,
+    setShowModal,
+    handleDelete,
+}) => {
+    return (
+        <View style={styles.modalBtnContainer}>
+            <ModalBtn label="Download file" deleteMessage={downLoadFile} />
+            <ModalBtn
+                label="Revoke this message"
+                deleteMessage={handleRevoke}
+            />
+            <ModalBtn
+                label="Delete this message on your side"
+                deleteMessage={handleDelete}
+            />
+            <ModalBtn
+                label="Share this message"
+                deleteMessage={() => {
+                    setShowModal(false);
+                    navigation.navigate("ShareMessage", {
+                        selectedMessage,
+                    });
+                }}
+            />
+        </View>
+    );
+};
 
 const ModalBtn = (props) => {
     return (

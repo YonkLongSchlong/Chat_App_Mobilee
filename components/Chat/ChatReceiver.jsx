@@ -12,6 +12,7 @@ const ChatReceiver = ({
     setSelectedMessage,
     participants,
     participant,
+    mainUser,
 }) => {
     const messageType = item.messageType;
     const navigation = useNavigation();
@@ -29,100 +30,104 @@ const ChatReceiver = ({
     }
 
     return (
-        <Pressable
-            style={styles.container}
-            onLongPress={() => {
-                setShowModal(true);
-                setSelectedMessage(item);
-            }}
-            onPress={() => {
-                if (messageType === "image") {
-                    navigation.navigate("ImageView", {
-                        item,
-                    });
-                } else if (messageType === "video") {
-                    navigation.navigate("VideoView", {
-                        item,
-                    });
-                }
-            }}
-        >
-            <View style={styles.userAvatarContainer}>
-                <Image
-                    style={styles.userAvatar}
-                    source={{
-                        uri: `${
-                            user.avatar == undefined
-                                ? "https://st4.depositphotos.com/4329009/19956/v/450/depositphotos_199564354-stock-illustration-creative-vector-illustration-default-avatar.jpg"
-                                : user.avatar
-                        }`,
+        <>
+            {item.visibility.includes(mainUser._id) ? (
+                <Pressable
+                    style={styles.container}
+                    onLongPress={() => {
+                        setShowModal(true);
+                        setSelectedMessage(item);
                     }}
-                />
-            </View>
-            <View style={styles.messageContainer}>
-                <View style={styles.messageBubble}>
-                    <View style={styles.usernameContainer}>
-                        <Text style={styles.username}>
-                            {user.username == undefined
-                                ? "removed user"
-                                : user.username}
-                        </Text>
+                    onPress={() => {
+                        if (messageType === "image") {
+                            navigation.navigate("ImageView", {
+                                item,
+                            });
+                        } else if (messageType === "video") {
+                            navigation.navigate("VideoView", {
+                                item,
+                            });
+                        }
+                    }}
+                >
+                    <View style={styles.userAvatarContainer}>
+                        <Image
+                            style={styles.userAvatar}
+                            source={{
+                                uri: `${
+                                    user.avatar == undefined
+                                        ? "https://st4.depositphotos.com/4329009/19956/v/450/depositphotos_199564354-stock-illustration-creative-vector-illustration-default-avatar.jpg"
+                                        : user.avatar
+                                }`,
+                            }}
+                        />
                     </View>
-                    {messageType == "image" ? (
-                        <>
-                            <Image
-                                source={{ uri: item.messageUrl }}
-                                style={styles.image}
-                            />
-                            <Text style={styles.timeText}>
-                                {formatTime(item.createdAt)}
-                            </Text>
-                        </>
-                    ) : messageType == "text" ? (
-                        <>
-                            <Text style={styles.messageText}>
-                                {item.message}
-                            </Text>
-                            <Text style={styles.timeText}>
-                                {formatTime(item.createdAt)}
-                            </Text>
-                        </>
-                    ) : messageType == "file" ? (
-                        <>
-                            <View style={styles.messageFileContainer}>
-                                <Ionicons
-                                    name="file-tray-outline"
-                                    size={30}
-                                    color={Colors.black}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.messageTextFile}
-                                >
-                                    {item.message}
+                    <View style={styles.messageContainer}>
+                        <View style={styles.messageBubble}>
+                            <View style={styles.usernameContainer}>
+                                <Text style={styles.username}>
+                                    {user.username == undefined
+                                        ? "removed user"
+                                        : user.username}
                                 </Text>
                             </View>
-                            <Text style={styles.timeText}>
-                                {formatTime(item.createdAt)}
-                            </Text>
-                        </>
-                    ) : (
-                        <>
-                            <Video
-                                style={styles.video}
-                                source={{ uri: `${item.messageUrl}` }}
-                                useNativeControls
-                                resizeMode="contain"
-                                isLooping
-                            />
-                            <Text style={styles.timeText}>
-                                {formatTime(item.createdAt)}
-                            </Text>
-                        </>
-                    )}
-                </View>
-            </View>
-        </Pressable>
+                            {messageType == "image" ? (
+                                <>
+                                    <Image
+                                        source={{ uri: item.messageUrl }}
+                                        style={styles.image}
+                                    />
+                                    <Text style={styles.timeText}>
+                                        {formatTime(item.createdAt)}
+                                    </Text>
+                                </>
+                            ) : messageType == "text" ? (
+                                <>
+                                    <Text style={styles.messageText}>
+                                        {item.message}
+                                    </Text>
+                                    <Text style={styles.timeText}>
+                                        {formatTime(item.createdAt)}
+                                    </Text>
+                                </>
+                            ) : messageType == "file" ? (
+                                <>
+                                    <View style={styles.messageFileContainer}>
+                                        <Ionicons
+                                            name="file-tray-outline"
+                                            size={30}
+                                            color={Colors.black}
+                                        />
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.messageTextFile}
+                                        >
+                                            {item.message}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.timeText}>
+                                        {formatTime(item.createdAt)}
+                                    </Text>
+                                </>
+                            ) : (
+                                <>
+                                    <Video
+                                        style={styles.video}
+                                        source={{ uri: `${item.messageUrl}` }}
+                                        useNativeControls
+                                        resizeMode="contain"
+                                        isLooping
+                                    />
+                                    <Text style={styles.timeText}>
+                                        {formatTime(item.createdAt)}
+                                    </Text>
+                                </>
+                            )}
+                        </View>
+                    </View>
+                </Pressable>
+            ) : null}
+        </>
     );
 };
 

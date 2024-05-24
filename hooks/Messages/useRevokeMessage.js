@@ -1,28 +1,34 @@
 import { ToastAndroid } from "react-native";
 
-export const useDeleteGroupChatMessage = async (
+export default useRevokeMessages = async (
+    messages,
+    participantId,
     token,
-    conversationId,
     messageId
 ) => {
     try {
         const response = await fetch(
-            process.env.EXPO_PUBLIC_BASE_URL + "/group/messages/revoke",
+            process.env.EXPO_PUBLIC_BASE_URL +
+                `/messages/revoke/${participantId}`,
             {
-                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
+                method: "POST",
                 body: JSON.stringify({
-                    conversationId,
                     messageId,
                 }),
             }
         );
         const data = await response.json();
-        if (data.error || response.status === 404 || response.satus === 400) {
+        if (data.error || response.status === 400 || response.status === 404) {
             throw new Error(data);
+        } else {
+            const newMessages = messages.filter(
+                (message) => message._id !== data._id
+            );
+            return newMessages;
         }
     } catch (error) {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);

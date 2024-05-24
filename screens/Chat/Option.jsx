@@ -134,7 +134,7 @@ const DisolveBtn = (props) => {
             props.token,
             props.conversation._id
         );
-        if (response.status === 200) {
+        if (response && response.status === 200) {
             ToastAndroid.show(
                 "Group disolved successfully",
                 ToastAndroid.SHORT
@@ -179,6 +179,18 @@ const LeaveBtn = (props) => {
                 "There is only one admin and that is you, please add someone to be an admin before you leave",
                 ToastAndroid.LONG
             );
+        } else {
+            const response = await useLeaveGroupChat(
+                props.token,
+                props.conversation._id
+            );
+            if (response.status === 200) {
+                props.navigation.navigate(props.route);
+                ToastAndroid.show(
+                    "You have leave the group",
+                    ToastAndroid.SHORT
+                );
+            }
         }
     };
 

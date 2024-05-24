@@ -6,7 +6,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 
-const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
+const ChatSender = ({ item, setShowModal, setSelectedMessage, mainUser }) => {
     const messageType = item.messageType;
     const navigation = useNavigation();
     const formatTime = (time) => {
@@ -15,74 +15,83 @@ const ChatSender = ({ item, setShowModal, setSelectedMessage }) => {
     };
 
     return (
-        <Pressable
-            style={styles.container}
-            onLongPress={() => {
-                setShowModal(true);
-                setSelectedMessage(item);
-            }}
-            onPress={() => {
-                if (messageType === "image") {
-                    navigation.navigate("ImageView", {
-                        item,
-                    });
-                } else if (messageType === "video") {
-                    navigation.navigate("VideoView", {
-                        item,
-                    });
-                }
-            }}
-        >
-            <View style={styles.messageBubble}>
-                {messageType == "image" ? (
-                    <>
-                        <Image
-                            source={{ uri: item.messageUrl }}
-                            style={styles.image}
-                        />
-                        <Text style={styles.timeText}>
-                            {formatTime(item.createdAt)}
-                        </Text>
-                    </>
-                ) : messageType == "text" ? (
-                    <>
-                        <Text style={styles.messageText}>{item.message}</Text>
-                        <Text style={styles.timeText}>
-                            {formatTime(item.createdAt)}
-                        </Text>
-                    </>
-                ) : messageType == "file" ? (
-                    <>
-                        <View style={styles.messageFileContainer}>
-                            <Ionicons
-                                name="file-tray-outline"
-                                size={30}
-                                color={Colors.black}
-                            />
-                            <Text numberOfLines={1} style={styles.messageText}>
-                                {item.message}
-                            </Text>
-                        </View>
-                        <Text style={styles.timeText}>
-                            {formatTime(item.createdAt)}
-                        </Text>
-                    </>
-                ) : (
-                    <>
-                        <Video
-                            style={styles.video}
-                            source={{ uri: `${item.messageUrl}` }}
-                            useNativeControls
-                            resizeMode="contain"
-                            isLooping
-                        />
-                        <Text style={styles.timeText}>
-                            {formatTime(item.createdAt)}
-                        </Text>
-                    </>
-                )}
-            </View>
-        </Pressable>
+        <>
+            {item.visibility.includes(mainUser._id) ? (
+                <Pressable
+                    style={styles.container}
+                    onLongPress={() => {
+                        setShowModal(true);
+                        setSelectedMessage(item);
+                    }}
+                    onPress={() => {
+                        if (messageType === "image") {
+                            navigation.navigate("ImageView", {
+                                item,
+                            });
+                        } else if (messageType === "video") {
+                            navigation.navigate("VideoView", {
+                                item,
+                            });
+                        }
+                    }}
+                >
+                    <View style={styles.messageBubble}>
+                        {messageType == "image" ? (
+                            <>
+                                <Image
+                                    source={{ uri: item.messageUrl }}
+                                    style={styles.image}
+                                />
+                                <Text style={styles.timeText}>
+                                    {formatTime(item.createdAt)}
+                                </Text>
+                            </>
+                        ) : messageType == "text" ? (
+                            <>
+                                <Text style={styles.messageText}>
+                                    {item.message}
+                                </Text>
+                                <Text style={styles.timeText}>
+                                    {formatTime(item.createdAt)}
+                                </Text>
+                            </>
+                        ) : messageType == "file" ? (
+                            <>
+                                <View style={styles.messageFileContainer}>
+                                    <Ionicons
+                                        name="file-tray-outline"
+                                        size={30}
+                                        color={Colors.black}
+                                    />
+                                    <Text
+                                        numberOfLines={1}
+                                        style={styles.messageText}
+                                    >
+                                        {item.message}
+                                    </Text>
+                                </View>
+                                <Text style={styles.timeText}>
+                                    {formatTime(item.createdAt)}
+                                </Text>
+                            </>
+                        ) : (
+                            <>
+                                <Video
+                                    style={styles.video}
+                                    source={{ uri: `${item.messageUrl}` }}
+                                    useNativeControls
+                                    resizeMode="contain"
+                                    isLooping
+                                />
+                                <Text style={styles.timeText}>
+                                    {formatTime(item.createdAt)}
+                                </Text>
+                            </>
+                        )}
+                    </View>
+                </Pressable>
+            ) : null}
+        </>
     );
 };
 
