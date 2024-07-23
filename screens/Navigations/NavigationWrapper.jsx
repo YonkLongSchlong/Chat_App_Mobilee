@@ -1,23 +1,37 @@
-import React, { useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import React, { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { ConversationProvider } from "../../context/ConversationContext";
+import { ConversationsProvider } from "../../context/ConversationsContext";
+import { FriendRequestsSentProvider } from "../../context/FriendRequestSentContext";
+import { FriendsProvider } from "../../context/FriendsContext";
+import { MessagesProvider } from "../../context/MessagesContext";
+import { SocketProvider } from "../../context/SocketContext";
 import AppStack from "./AppStack";
 import AuthStack from "./AuthStack";
-import { AuthContext } from "../../context/AuthContext";
-import { ActivityIndicator, View } from "react-native";
 
 export default function NavigationWrapper() {
-  const { isLoading, token } = useContext(AuthContext);
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size={"large"} />
-      </View>
-    );
-  }
+    const { token, user } = useContext(AuthContext);
 
-  return (
-    <NavigationContainer>
-      {token !== null ? <AppStack /> : <AuthStack />}
-    </NavigationContainer>
-  );
+    return (
+        <NavigationContainer>
+            {token !== null && user !== null ? (
+                <SocketProvider>
+                    <MessagesProvider>
+                        <FriendsProvider>
+                            <FriendRequestsSentProvider>
+                                <ConversationsProvider>
+                                    <ConversationProvider>
+                                        <AppStack />
+                                    </ConversationProvider>
+                                </ConversationsProvider>
+                            </FriendRequestsSentProvider>
+                        </FriendsProvider>
+                    </MessagesProvider>
+                </SocketProvider>
+            ) : (
+                <AuthStack />
+            )}
+        </NavigationContainer>
+    );
 }
