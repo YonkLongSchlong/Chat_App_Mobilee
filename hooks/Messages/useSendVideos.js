@@ -7,7 +7,6 @@ export default useSendVideos = async (token, receiverId, formData) => {
                 `/messages/send/video/${receiverId}`,
             {
                 headers: {
-                    Accept: "application/json",
                     "Content-Type": "multipart/form-data",
                     Authorization: `Bearer ${token}`,
                 },
@@ -15,16 +14,10 @@ export default useSendVideos = async (token, receiverId, formData) => {
                 body: formData,
             }
         );
-        const data = await response.json();
-        if (
-            data.error ||
-            response.status == 404 ||
-            response.status == 400 ||
-            response.status === 500
-        )
-            throw new Error(data, error);
-        return data.resultMessage;
+        if (!response.ok) throw new Error("Please try again");
+        return response;
     } catch (error) {
-        ToastAndroid.show("Please try again", ToastAndroid.LONG);
+        ToastAndroid.show(error.message, ToastAndroid.LONG);
+        return null;
     }
 };

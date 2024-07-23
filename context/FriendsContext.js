@@ -11,8 +11,8 @@ export const FriendsProvider = ({ children }) => {
     const fetchFriends = async () => {
         const response = await useFetchFriends(user, token);
         const data = await response.json();
-        if (response.status === 401) {
-            setFriends(null);
+        if (response.status === 401 || response.status === 404) {
+            setFriends([]);
         } else {
             setFriends(data);
         }
@@ -21,6 +21,7 @@ export const FriendsProvider = ({ children }) => {
     useEffect(() => {
         fetchFriends();
     }, []);
+
     return (
         <FriendsContext.Provider
             value={{

@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
-import { Gift, UserPlus, Users } from "lucide-react-native";
+import { UserPlus } from "lucide-react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -74,16 +74,6 @@ export default function Peoples() {
                         label="FriendRequestSent"
                         text={"Friend requests sent"}
                         component={UserPlus}
-                    />
-                    <OptionsCard
-                        label="Contact"
-                        text={"Contact"}
-                        component={Users}
-                    />
-                    <OptionsCard
-                        label="Birthday"
-                        text={"Birthday"}
-                        component={Gift}
                     />
                 </View>
 

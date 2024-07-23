@@ -56,8 +56,12 @@ export default function Contact() {
                 }),
             }
         );
-        const userList = await response.json();
-        setUsers(userList);
+        if (response.status === 204) {
+            setUsers(null);
+        } else {
+            const userList = await response.json();
+            setUsers(userList);
+        }
     };
 
     useEffect(() => {

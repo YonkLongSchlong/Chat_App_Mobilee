@@ -19,16 +19,10 @@ export default useSendGrupChatFiles = async (
                 body: formData,
             }
         );
-        const data = await response.json();
-        if (
-            data.error ||
-            response.status === 400 ||
-            response.status === 404 ||
-            response.status === 500
-        )
-            throw new Error(data);
-        return data.resultMessage;
+        if (!response.ok) throw new Error(response);
+        return response;
     } catch (error) {
         ToastAndroid.show("Please try again", ToastAndroid.LONG);
+        return null;
     }
 };

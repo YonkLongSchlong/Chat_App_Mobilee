@@ -1,0 +1,25 @@
+{
+    "cli": {
+        "version": ">= 9.1.0"
+    },
+    "build": {
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal"
+        },
+        "preview": {
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_BASE_URL": "http://172.31.44.218:5000"
+            }
+        },
+        "production": {
+            "env": {
+                "EXPO_PUBLIC_BASE_URL": "http://172.31.44.218:5000"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}

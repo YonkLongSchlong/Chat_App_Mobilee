@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Video } from "expo-av";
 import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 import React, { useRef } from "react";
 import { Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

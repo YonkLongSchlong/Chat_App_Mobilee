@@ -62,10 +62,16 @@ export default function Dashboard() {
     useEffect(() => {
         const getConversations = async () => {
             setIsLoading(true);
-            const data = await useFetchConversations(token);
-            setConversations(data);
+            const response = await useFetchConversations(token);
+            if (response.status == 404) {
+                setConversations([]);
+                setIsLoading(false);
+            } else {
+                const data = await response.json();
+                setConversations(data);
+                setIsLoading(false);
+            }
             // setFilteredList(data);
-            setIsLoading(false);
         };
 
         getConversations();

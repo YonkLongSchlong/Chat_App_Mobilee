@@ -47,7 +47,7 @@ export default function Otp({ route, navigation }) {
                 {/* ---------- OTP INPUTS ---------- */}
                 <View style={{ width: "70%" }}>
                     <Text style={styles.headerText}>
-                        Enter the otp that has been sent to your phone number:
+                        Enter the otp that has been sent to your email address:
                     </Text>
 
                     <LoginTextInput

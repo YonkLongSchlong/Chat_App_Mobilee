@@ -8,7 +8,6 @@ import {
     ActivityIndicator,
     Dimensions,
     Image,
-    LogBox,
     Modal,
     Platform,
     Pressable,
@@ -60,38 +59,37 @@ export default function Chat1to1({ route, navigation }) {
     useListenMesages();
 
     const handleSelectFile = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                multiple: true,
-            });
-            if (!result.canceled) {
-                const files = result.assets;
-                const formData = new FormData();
-                for (let i = 0; i < files.length; i++) {
-                    formData.append("files[]", {
-                        name: files[i].name.split(".")[0],
-                        uri: files[i].uri,
-                        type: files[i].mimeType,
-                        size: files[i].size,
-                    });
-                }
-                const data = await useSendFile(
-                    token,
-                    participant._id,
-                    formData
-                );
-                LogBox.ignoreAllLogs();
-                if (data.length == 0 || data === undefined) {
-                    return;
-                }
-                setMessages((messages) => [...messages, ...data]);
+        /** Dùng expo document picker để pick file từ trong điện thoại */
+        const result = await DocumentPicker.getDocumentAsync({
+            multiple: true,
+        });
+        if (!result.canceled) {
+            const files = result.assets;
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append("files[]", {
+                    name: files[i].name.split(".")[0],
+                    uri: files[i].uri,
+                    type: files[i].mimeType,
+                    size: files[i].size,
+                });
             }
-        } catch (error) {
-            console.log("Error selecting file:", error);
+            const response = await useSendFile(
+                token,
+                participant._id,
+                formData
+            );
+            if (response != null) {
+                const data = await response.json();
+                setMessages((messages) => [...messages, ...data.resultMessage]);
+            }
         }
     };
 
     const handleSelectImage = async () => {
+        /** Dùng expo image picker để pick ảnh từ trong điện thoại
+         *  Sau khi pick set state SelectedImage để hiển thị ảnh được chọn
+         */
         const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status) {
             const result = await ImagePicker.launchImageLibraryAsync({
@@ -105,7 +103,30 @@ export default function Chat1to1({ route, navigation }) {
         }
     };
 
+    const handleSendImage = async () => {
+        /** Tạo formData để truyền dữ liệu multipart */
+        const formData = new FormData();
+        for (let i = 0; i < selectedImage.length; i++) {
+            const fileType = selectedImage[i].uri.split(".").pop();
+            const fileName = selectedImage[i].uri.split("/").pop();
+            formData.append("images[]", {
+                uri: `${selectedImage[i].uri}`,
+                type: `image/${fileType}`,
+                name: `${fileName}`,
+            });
+        }
+
+        /** Lấy về kết quả và set lại state Messages để hiển thị */
+        const response = await useSendImages(token, participant._id, formData);
+        if (response != null) {
+            const data = await response.json();
+            setMessages((messages) => [...messages, ...data.resultMessage]);
+            setSelectedImage(null);
+        }
+    };
+
     const handleSendVideo = async () => {
+        /** Dùng expo image picker để pick video từ trong điện thoại */
         const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status) {
             const result = await ImagePicker.launchImageLibraryAsync({
@@ -116,6 +137,7 @@ export default function Chat1to1({ route, navigation }) {
                 return;
             }
 
+            /** Tạo form data để truyền dữ liệu multipart */
             const formData = new FormData();
             for (let i = 0; i < result.assets.length; i++) {
                 const fileMime = result.assets[i].type;
@@ -127,36 +149,19 @@ export default function Chat1to1({ route, navigation }) {
                     name: `${fileName}`,
                 });
             }
-            const data = await useSendVideos(token, participant._id, formData);
-            LogBox.ignoreAllLogs();
-            if (data.length == 0 || data === undefined) {
-                return;
-            }
-            console.log(data);
-            setMessages((messages) => [...messages, ...data]);
-        }
-    };
 
-    const handleSendImage = async (selectedImage) => {
-        const formData = new FormData();
-        let options = [];
-        for (let i = 0; i < selectedImage.length; i++) {
-            const fileMime = selectedImage[i].type;
-            const fileType = selectedImage[i].uri.split(".").pop();
-            const fileName = selectedImage[i].uri.split("/").pop();
-            formData.append("images[]", {
-                uri: `${selectedImage[i].uri}`,
-                type: `${fileMime}/${fileType}`,
-                name: `${fileName}`,
-            });
+            /** Lấy về kết quả và set lại state Messages để hiển thị */
+            const response = await useSendVideos(
+                token,
+                participant._id,
+                formData
+            );
+            if (response != null) {
+                const data = await response.json();
+                console.log(data);
+                setMessages((messages) => [...messages, ...data.resultMessage]);
+            }
         }
-        const data = await useSendImages(token, participant._id, formData);
-        LogBox.ignoreAllLogs();
-        if (data.length == 0) {
-            return;
-        }
-        setMessages((messages) => [...messages, ...data]);
-        setSelectedImage(null);
     };
 
     const handleSend = async () => {

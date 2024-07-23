@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 import React from "react";
 import { Image, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

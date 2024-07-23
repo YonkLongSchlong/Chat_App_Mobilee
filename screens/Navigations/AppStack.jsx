@@ -10,7 +10,6 @@ import Option from "../Chat/Option";
 import SelectChatGroup from "../Chat/SelectedChatGroup";
 import { ShareMessage } from "../Chat/ShareMessage";
 import { VideoView } from "../Chat/VideoView";
-import Birthday from "../Peoples/Birthday";
 import Contact from "../Peoples/Contact";
 import FriendRequest from "../Peoples/FriendRequest";
 import FriendRequestSent from "../Peoples/FriendRequestSent";
@@ -152,19 +151,6 @@ export default function AppStack() {
                 }}
             />
             <Stack.Screen
-                name="Birthday"
-                component={Birthday}
-                options={{
-                    headerShown: true,
-                    headerTitle: "Birthday",
-                    headerTransparent: true,
-                    headerTitleStyle: {
-                        fontFamily: "semiBold",
-                        fontSize: FontSize.medium,
-                    },
-                }}
-            />
-            <Stack.Screen
                 name="Chat1to1"
                 component={Chat1to1}
                 options={({ navigation }) => ({
@@ -187,7 +173,7 @@ export default function AppStack() {
                 component={UserFind}
                 options={{
                     headerShown: true,
-                    headerTitle: "UserFind",
+                    headerTitle: "Find User",
                     headerTransparent: true,
                     headerTitleStyle: {
                         fontFamily: "semiBold",

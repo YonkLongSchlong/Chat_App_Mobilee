@@ -8,7 +8,6 @@ import {
     ActivityIndicator,
     Dimensions,
     Image,
-    LogBox,
     Modal,
     Platform,
     Pressable,
@@ -74,13 +73,12 @@ export const ChatGroup = ({ route, navigation }) => {
                         size: files[i].size,
                     });
                 }
-                const data = await useSendGroupChatFile(
+                const response = await useSendGroupChatFile(
                     token,
                     conversation._id,
                     formData
                 );
-                LogBox.ignoreAllLogs();
-                if (data.length == 0 || data == undefined) {
+                if (response == null) {
                     return;
                 }
             }
@@ -126,9 +124,8 @@ export const ChatGroup = ({ route, navigation }) => {
                 });
             }
             formData.append("conversationId", `${conversation._id}`);
-            const data = await useSendGroupChatVideos(token, formData);
-            LogBox.ignoreAllLogs();
-            if (data.length == 0 || data === undefined) {
+            const response = await useSendGroupChatVideos(token, formData);
+            if (response == null) {
                 return;
             }
             setSelectedImage(null);
@@ -148,9 +145,8 @@ export const ChatGroup = ({ route, navigation }) => {
             });
         }
         formData.append("conversationId", `${conversation._id}`);
-        const data = await useSendGroupChatImages(token, formData);
-        LogBox.ignoreAllLogs();
-        if (data.length == 0 || data === undefined) {
+        const response = await useSendGroupChatImages(token, formData);
+        if (response == null) {
             return;
         }
         setSelectedImage(null);
